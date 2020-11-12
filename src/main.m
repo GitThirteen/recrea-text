@@ -1,12 +1,13 @@
 classdef main
 
     methods(Static)
-        function image = mainFunc()
+        function image = mainFunc(image)
             addpath('./filter');
             addpath('../assets');
-            image = imread('../assets/privjet.png');
             image = BinaryImage.imageToBinary(image);
-            image = EdgeDetector.cannyFilter(image);
+            
+            %morphObj = strel('line', 10, 90);
+            %image = imclose(image, morphObj);
             imshow(image);
         end
     end
