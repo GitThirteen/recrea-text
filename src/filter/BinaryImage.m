@@ -2,9 +2,9 @@ classdef BinaryImage
     % Returns a black & while image depending on the set threshold
     
     methods(Static)
-        function imageToBinary = Binary(image)
+        function binaryImage = imageToBinary(image)
             grayImage = rgb2gray(image);
-            imageToBinary = imbinarize(grayImage, 'adaptive');
+            binaryImage = imbinarize(grayImage, 'adaptive');
         end
     end
 end
