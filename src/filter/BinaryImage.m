@@ -1,8 +1,5 @@
-addpath('./filter');
-addpath('../assets');
-
-classdef main
-    % Placeholder Class / Main
+classdef BinaryImage
+    % Returns a black & while image depending on the set threshold
     
     properties
         Property1
