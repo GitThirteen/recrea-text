@@ -1,0 +1,31 @@
+classdef Blobs
+    %find & label blobs
+    
+    methods(Static)
+        function labeledImage = label(image)
+            labels = bwlabel(image, 8);
+            labeledImage = label2rgb(labels);
+            
+        end
+       
+        function cc = findCC(image)
+           cc = bwconncomp(image,8); %alternative to bwlabel()
+        end
+        
+        function BlobMask = getBlobMask(labeledImage, originalImage)
+            blobMeasurements = regionprops(labeledImage, originalImage, 'all');
+            numberOfBlobs = size(blobMeasurements, 1);
+            
+            boundaries = bwboundaries(binaryImage);
+            numberOfBoundaries = size(boundaries, 1);
+            for k = 1 : numberOfBoundaries
+                thisBoundary = boundaries{k};
+                plot(thisBoundary(:,2), thisBoundary(:,1), 'g', 'LineWidth', 2);
+            end 
+        end
+        
+        function keepers = ke
+        
+    end
+end
+

@@ -5,14 +5,9 @@ classdef BinaryImage
         function binaryImage = imageToBinary(image)
             grayImage = rgb2gray(image);
             
+            numdarkpixel = 
+            
             binarized = imbinarize(grayImage, 'adaptive','Sensitivity', 0.85);
-            
-            numblackpixel = sum(binarized==0);
-            numwhitepixel = sum(binarized==1);
-            
-            if numblackpixel < numwhitepixel
-                binarized = ones(size(image(:,:,1))) - binarized;
-            end
             
             morphObj = strel('square', 10);
             binaryImage = imclose(binarized, morphObj);
