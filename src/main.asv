@@ -4,6 +4,7 @@ classdef main
         function image = mainFunc(image)
             addpath('./filter');
             addpath('../assets');
+<<<<<<< HEAD
             binaryImage = BinaryImage.imageToBinary(image);
             
             %morphObj = strel('line', 10, 90);
@@ -42,6 +43,13 @@ classdef main
 %             subplot(3,1,3);
 %             imshow(obj)
             
+=======
+            image = BinaryImage.imageToBinary(image);
+            image = bwareafilt(
+            %morphObj = strel('line', 10, 90);
+            %image = imclose(image, morphObj);
+            imshow(image);
+>>>>>>> c0c0cd0 (Minor changes)
         end
     end
 end

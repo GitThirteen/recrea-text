@@ -4,10 +4,23 @@ classdef main
         function image = mainFunc(image)
             addpath('./filter');
             addpath('../assets');
+<<<<<<< HEAD
             binaryImage = BinaryImage.imageToBinary(image);
+=======
+            h_im = imshow(image);
+>>>>>>> c0c0cd0 (Minor changes)
             
+            mask = BinaryImage.imageToBinary(image);
+            
+            newImage = createMask(mask, h_im);
+            newImage(:,:,2) = newImage;
+            newImage(:,:,3) = newImage(:,:,1);
+            
+            ROI = image;
+            ROI(newImage == 0) = 0;
             %morphObj = strel('line', 10, 90);
             %image = imclose(image, morphObj);
+<<<<<<< HEAD
             subplot(1,3,1);
             imshow(binaryImage)
             
@@ -42,6 +55,9 @@ classdef main
 %             subplot(3,1,3);
 %             imshow(obj)
             
+=======
+            imshow(ROI);
+>>>>>>> c0c0cd0 (Minor changes)
         end
     end
 end
