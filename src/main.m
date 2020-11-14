@@ -2,14 +2,12 @@ classdef main
 
     methods(Static)
         function image = mainFunc(image)
-<<<<<<< HEAD
             addpath('./filter');
             addpath('../assets');
-<<<<<<< HEAD
+            
             binaryImage = BinaryImage.imageToBinary(image);
-=======
+            
             h_im = imshow(image);
->>>>>>> c0c0cd0 (Minor changes)
             
             mask = BinaryImage.imageToBinary(image);
             
@@ -19,9 +17,7 @@ classdef main
             
             ROI = image;
             ROI(newImage == 0) = 0;
-            %morphObj = strel('line', 10, 90);
-            %image = imclose(image, morphObj);
-<<<<<<< HEAD
+            
             subplot(1,3,1);
             imshow(binaryImage)
             
@@ -41,7 +37,6 @@ classdef main
             end
             hold off;
             
-            
             % alternative way to find and display the n-th blob:
             
 %             cc = Blobs.findCC(binaryImage);
@@ -55,20 +50,6 @@ classdef main
 %             obj(cc.PixelIdxList{n}) = 1; 
 %             subplot(3,1,3);
 %             imshow(obj)
-            
-=======
-            imshow(ROI);
->>>>>>> c0c0cd0 (Minor changes)
-=======
-            addpath('./src/filter');
-            addpath('./assets');
-
-            image = BinaryImage.imageToBinary(image);
-
-            %morphObj = strel('line', 10, 90);
-            %image = imclose(image, morphObj);
-            imshow(image);
->>>>>>> 03ebab4 (small changes)
         end
     end
 end
