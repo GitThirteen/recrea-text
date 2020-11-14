@@ -4,17 +4,26 @@ classdef main
         function image = mainFunc(image)
             addpath('./filter');
             addpath('../assets');
-<<<<<<< HEAD
+            
             binaryImage = BinaryImage.imageToBinary(image);
             
-            %morphObj = strel('line', 10, 90);
-            %image = imclose(image, morphObj);
-            subplot(1,3,1);
-            imshow(binaryImage)
+            h_im = imshow(image);
             
-            labeledImage = Blobs.label(binaryImage);
+            mask = BinaryImage.imageToBinary(image);
+            
+            %newImage = createMask(mask, h_im);
+            %newImage(:,:,2) = newImage;
+            %newImage(:,:,3) = newImage(:,:,1);
+            
+            ROI = image;
+            ROI(newImage == 0) = 0;
+            
+            subplot(1,3,1);
+            imshow(mask);
+            
+            %labeledImage = Blobs.label(binaryImage);
             subplot(1,3,2);
-            imshow(labeledImage)
+            %imshow(labeledImage)
             
             [boundaries, numberOfBoundaries]=Blobs.findBoundaries(binaryImage);
             
@@ -27,7 +36,6 @@ classdef main
                 plot(thisBoundary(:,2), thisBoundary(:,1), 'y', 'LineWidth', 1);
             end
             hold off;
-            
             
             % alternative way to find and display the n-th blob:
             
@@ -42,14 +50,6 @@ classdef main
 %             obj(cc.PixelIdxList{n}) = 1; 
 %             subplot(3,1,3);
 %             imshow(obj)
-            
-=======
-            image = BinaryImage.imageToBinary(image);
-            image = bwareafilt(
-            %morphObj = strel('line', 10, 90);
-            %image = imclose(image, morphObj);
-            imshow(image);
->>>>>>> c0c0cd0 (Minor changes)
         end
     end
 end

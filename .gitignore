@@ -1,0 +1,5 @@
+# ASV Backup Files
+*.asv
+
+# Mac .DS_Store Files
+**.DS_Store
