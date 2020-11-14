@@ -2,6 +2,7 @@ classdef main
 
     methods(Static)
         function image = mainFunc(image)
+<<<<<<< HEAD
             addpath('./filter');
             addpath('../assets');
 <<<<<<< HEAD
@@ -58,6 +59,16 @@ classdef main
 =======
             imshow(ROI);
 >>>>>>> c0c0cd0 (Minor changes)
+=======
+            addpath('./src/filter');
+            addpath('./assets');
+
+            image = BinaryImage.imageToBinary(image);
+
+            %morphObj = strel('line', 10, 90);
+            %image = imclose(image, morphObj);
+            imshow(image);
+>>>>>>> 03ebab4 (small changes)
         end
     end
 end
