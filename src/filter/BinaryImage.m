@@ -11,7 +11,7 @@ classdef BinaryImage
             numwhitepixel = sum(binarized==1);
             
             if numblackpixel < numwhitepixel
-                binarized = ones(size(image(:,:,1))) - binarized;
+                binarized = imcomplement(binarized);
             end
             
             morphObj = strel('square', 10);

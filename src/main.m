@@ -4,6 +4,7 @@ classdef main
         function image = mainFunc(image)
             addpath('./filter');
             addpath('../assets');
+%% SEGMENTIER-BILD
             
 %             binaryImage = BinaryImage.imageToBinary(image);
 %             h_im = imshow(image);
@@ -56,6 +57,20 @@ classdef main
             
             subplot(2,2,4);
             imshow(keeperMask);
+
+
+%% TEXTBILD - uncomment to compute skeleton for text image
+%             binaryText = BinaryImage.imageToBinary(image);
+%             subplot(2,2,1);
+%             imshow(binaryText);
+%             
+%             skeletonText = bwskel(binaryText);
+%             subplot(2,2,2);
+%             imshow(skeletonText);
+%             
+%             subplot(2,2,3);
+%             imshow(labeloverlay(image,skeletonText,'Transparency',0, 'Colormap', 'hot'));
+            
         end
     end
 end
