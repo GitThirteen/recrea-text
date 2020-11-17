@@ -11,15 +11,17 @@ classdef main
             
             mask = BinaryImage.imageToBinary(image);
             
-            %newImage = createMask(mask, h_im);
-            %newImage(:,:,2) = newImage;
-            %newImage(:,:,3) = newImage(:,:,1);
+            newImage = createMask(mask, h_im);
+            newImage(:,:,2) = newImage;
+            newImage(:,:,3) = newImage(:,:,1);
             
-            %ROI = image;
-            %ROI(newImage == 0) = 0;
+            ROI = image;
+            ROI(newImage == 0) = 0;
             
             subplot(1,3,1);
+            %imshow(binaryImage)
             imshow(mask);
+            imshow(newImage);
             
             %labeledImage = Blobs.label(binaryImage);
             subplot(1,3,2);
