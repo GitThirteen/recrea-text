@@ -45,7 +45,7 @@ classdef main
             allowableOrientIndexes = (allBlobOrientations > 65);
             keeperIndexes = find(allowableOrientIndexes);
             keeperBlobsImage = ismember(labeledImage, keeperIndexes);
-
+            
             allowableIndexes = (allBlobOrientations > 65);
             keeperIndexes = find(allowableIndexes);
             keeperMask = ismember(labeledImage, keeperIndexes);
@@ -53,30 +53,22 @@ classdef main
             
             subplot(2,2,4);
             imshow(keeperMask);
-
-%             boundingBox = regionprops(keeperMask, 'BoundingBox'); % [left_x, top_y, width, height]
-%             coords = boundingBox.BoundingBox;
             
             keeperBlobsImage = repmat(keeperMask,1,1,3);
             
             segmentedImage = image; % Simply a copy at first.
             segmentedImage(~keeperBlobsImage) = 0;  % Set all non-keeper pixels to zero.
-            
-%             keeperMask = imcrop(keeperMask, [coords(1), coords(2), coords(1)+coords(3), coords(2)+coords(4)]);
-            
-            props = regionprops(keeperMask, 'BoundingBox'); % !
-            
-            bBox = props.BoundingBox; % !
-            keeperMask = imcrop(keeperMask, bBox); % !
 
-%             bBox = regionprops(keeperMask, 'BoundingBox').BoundingBox;
-%             points = bbox2points(bBox);
-%             keeperMask = imcrop(keeperMask, points);
+            bBox = regionprops(keeperMask, 'BoundingBox').BoundingBox;
+            disp(bBox)
+            %points = bbox2points(bBox);
+            segmentedImage = imcrop(segmentedImage, bBox);
+            %imshow(segmentedImage)
             
             subplot(2,2,4);
             imshow(keeperMask);
             
-            imwrite(keeperMask, "../assets/segment.png");
+            imwrite(segmentedImage, "../assets/segment.png");
 
 
 %% TEXTBILD - uncomment to compute skeleton for text image
