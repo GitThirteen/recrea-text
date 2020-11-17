@@ -41,17 +41,26 @@ classdef main
             numberOfBlobs = size(blobMeasurements, 1);
             
             allBlobOrientations = [blobMeasurements.Orientation];
+
             allowableOrientIndexes = (allBlobOrientations > 65);
             keeperIndexes = find(allowableOrientIndexes);
             keeperBlobsImage = ismember(labeledImage, keeperIndexes);
 
-%             boundingBox = regionprops(keeperBlobsImage, 'BoundingBox'); % [left_x, top_y, width, height]
+            allowableIndexes = (allBlobOrientations > 65);
+            keeperIndexes = find(allowableIndexes);
+            keeperMask = ismember(labeledImage, keeperIndexes);
+            keeperMask = bwmorph(keeperMask, 'bridge');
+            
+            subplot(2,2,4);
+            imshow(keeperMask);
+
+%             boundingBox = regionprops(keeperMask, 'BoundingBox'); % [left_x, top_y, width, height]
 %             coords = boundingBox.BoundingBox;
             
-            keeperBlobsImage = repmat(keeperBlobsImage,1,1,3);
+            keeperBlobsImage = repmat(keeperMask,1,1,3);
             
-            keeperMask = image; % Simply a copy at first.
-            keeperMask(~keeperBlobsImage) = 0;  % Set all non-keeper pixels to zero.
+            segmentedImage = image; % Simply a copy at first.
+            segmentedImage(~keeperBlobsImage) = 0;  % Set all non-keeper pixels to zero.
             
 %             keeperMask = imcrop(keeperMask, [coords(1), coords(2), coords(1)+coords(3), coords(2)+coords(4)]);
             
@@ -59,6 +68,10 @@ classdef main
             
             bBox = props.BoundingBox; % !
             keeperMask = imcrop(keeperMask, bBox); % !
+
+%             bBox = regionprops(keeperMask, 'BoundingBox').BoundingBox;
+%             points = bbox2points(bBox);
+%             keeperMask = imcrop(keeperMask, points);
             
             subplot(2,2,4);
             imshow(keeperMask);
@@ -80,13 +93,14 @@ classdef main
 %  
 %             subplot(2,2,4);
 %             imshow(labeloverlay(image,skel,'Transparency',0, 'Colormap', 'hot'));
-            
-            
-%% IMAGE REGISTRATION - versuch
-
+%             
+%             
+% % IMAGE REGISTRATION - versuch
+% 
+%             fixedOriginal = skel;
 %             fixed = uint8(255 * skel);
-%             moving = imread("../assets/segment.png");
-%             moving = rgb2gray(moving);
+%             movingOriginal = imread("../assets/segment.png");
+%             moving = rgb2gray(movingOriginal);
 % %             moving(moving ~= 0) = 1;
 % %             moving = uint8(255 * moving);
 %             
@@ -101,11 +115,17 @@ classdef main
 %             %metric = registration.metric.MattesMutualInformation;
 %             %metric = registration.metric.MeanSquares;
 %             
+%             tform = imregtform(moving, fixed, 'translation', optimizer, metric);
 %             % 'rigid', 'similarity', 'translation' or 'affine'
 %             registered = imregister(moving, fixed, 'translation', optimizer, metric);
 %             figure;
 %             imshowpair(registered, fixed);
-             
+%             
+%             registeredOriginal = imwarp(movingOriginal,tform,'OutputView',imref2d(size(fixed)));
+%             fusedOriginals = imfuse(registeredOriginal, fixedOriginal, 'blend');
+%             figure;
+%             imshow(fusedOriginals);
+%              
         end
     end
 end
