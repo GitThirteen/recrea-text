@@ -41,7 +41,7 @@ classdef main
             numberOfBlobs = size(blobMeasurements, 1);
             
             allBlobOrientations = [blobMeasurements.Orientation];
-            allowableOrientIndexes = (allBlobOrientations > 70);
+            allowableOrientIndexes = (allBlobOrientations > 65);
             keeperIndexes = find(allowableOrientIndexes);
             keeperBlobsImage = ismember(labeledImage, keeperIndexes);
 
@@ -55,9 +55,10 @@ classdef main
             
 %             keeperMask = imcrop(keeperMask, [coords(1), coords(2), coords(1)+coords(3), coords(2)+coords(4)]);
             
-            %bBox = regionprops(keeperMask, 'BoundingBox').BoundingBox(1:4);
-            %points = bbox2points(bBox);
-            %keeperMask = imcrop(keeperMask, points);
+            props = regionprops(keeperMask, 'BoundingBox'); % !
+            
+            bBox = props.BoundingBox; % !
+            keeperMask = imcrop(keeperMask, bBox); % !
             
             subplot(2,2,4);
             imshow(keeperMask);
