@@ -15,6 +15,7 @@ classdef main
             
             % CREATE LABELED IMAGE
             [labeledImage, numOfLabels] = bwlabel(mask);
+            
             subplot(2,2,2);
             imshow(label2rgb(labeledImage));
             
@@ -65,11 +66,11 @@ classdef main
             
             % FIND BOUNDING BOX & CROP IMAGE
             bBox = regionprops(keeperMask, 'BoundingBox').BoundingBox;
-            disp(bBox)
-            %points = bbox2points(bBox);
+%             disp(bBox);
+%             points = bbox2points(bBox);
+            
             segImageRGB = imcrop(segImageRGB, bBox);
             segImageBW = imcrop(keeperMask, bBox);
-            %imshow(segmentedImage)
             
             subplot(2,2,4);
             imshow(segImageBW);
@@ -78,6 +79,10 @@ classdef main
             % SAVE CROPPED IMAGES
             imwrite(segImageRGB, "../assets/segmentOriginal.png");
             imwrite(segImageBW, "../assets/segmentBW.png");
+            
+            % SAVE ORIGINAL SIZE IMAGES
+%             imwrite(segImageRGB, "../assets/segmentRGB.png");               
+%             imwrite(keeperMask, "../assets/segment.png");
 
 
 %% TEXTBILD - uncomment to compute skeleton for text image
@@ -101,10 +106,20 @@ classdef main
 %             % FIXED & MOVING HAVE TO BE RGB OR GRAYSCALE IMAGES
 %             fixedOriginal = skel;
 %             fixed = uint8(255 * skel);
+%             
+%             % cropped version
 %             movingOriginal = imread("../assets/segmentOriginal.png");
 %             movingBW = imread("../assets/segmentBW.png");
-%             moving = uint8(255 * movingBW);
+%             movingSkel = bwskel(movingBW, 'MinBranchLength', 50);
+%             moving = uint8(255 * movingSkel);
 %             %moving = rgb2gray(movingOriginal);
+%             
+%             % uncropped version
+% %             movingOriginal = imread("../assets/segmentRGB.png");
+% %             movingBW = imread("../assets/segment.png");
+% %             %moving = uint8(255 * movingBW);
+% %             moving = rgb2gray(movingOriginal);
+%             
 %             
 %             % CREATE REGISTRATION CONFIGURATION DATA
 %             [optimizer, metric] = imregconfig('multimodal');
@@ -112,7 +127,8 @@ classdef main
 %             % OPTIONAL ADJUSTMENTS
 %             %optimizer = registration.optimizer.OnePlusOneEvolutionary;
 %             %optimizer = registration.optimizer.RegularStepGradientDescent;
-%             optimizer.InitialRadius = optimizer.InitialRadius * 0.4;
+%             optimizer.InitialRadius = optimizer.InitialRadius * 0.8;
+%             %optimizer.MaximumIterations = 300;
 %             %metric = registration.metric.MattesMutualInformation;
 %             %metric = registration.metric.MeanSquares;
 %             
