@@ -5,102 +5,49 @@ classdef main
             addpath('./filter');
             addpath('../assets');
 %% SEGMENTIER-BILD
-            
             % CREATE BINARY IMAGE
-            mask = BinaryImage.imageToBinary(image);
+            image = imadjust(image, [0.3 0.7], []);
+            imageWithGauss = GaussFilter.gauss(image, 7);
+            mask = BinaryImage.imageToBinary(imageWithGauss);
             
             subplot(2,2,1);
             imshow(mask);
             
-            
             % CREATE LABELED IMAGE
             [labeledImage, numOfLabels] = bwlabel(mask);
             
-            subplot(2,2,2);
-            imshow(label2rgb(labeledImage));
+            % SAVE BLOBS IN ARRAY
+            blobs = cell(numOfLabels, 1);
+            for i = 1 : numOfLabels
+                blob = labeledImage == i;
+                
+                img = image;
+                mask = repmat(blob,1,1,3);
+                img(~mask) = 0;
+                
+                bBox = regionprops(blob, 'BoundingBox').BoundingBox;
+                img = imcrop(img, bBox);
+                blobs{i} = img;
+            end
             
-            
-            % CALCULATE BOUNDARIES OF BINARY IMAGE
-%             [boundaries, numberOfBoundaries]=Blobs.findBoundaries(mask);
-            
-%             subplot(2, 2, 3);
-%             imshow(image);
-%             axis image; % Make sure image is not artificially stretched because of screen's aspect ratio.
-%             hold on;
-%             for k = 1 : numberOfBoundaries
-%                 thisBoundary = boundaries{k};
-%                 plot(thisBoundary(:,2), thisBoundary(:,1), 'y', 'LineWidth', 1);
-%             end
-%             hold off;
-            
-
-            % FIND RELEVANT BLOBS
-            blobMeasurements = regionprops(labeledImage, 'all');
-            numberOfBlobs = size(blobMeasurements, 1);
-            
-            allBlobOrientations = [blobMeasurements.Orientation];
-            
-            allowableIndexes = (allBlobOrientations > 65);
-            keeperIndexes = find(allowableIndexes);
-            keeperMaskOrientation = ismember(labeledImage, keeperIndexes);
-            keeperLabel = bwlabel(keeperMaskOrientation);
-
-
-            % KEEP ONLY BIGGEST RELEVANT BLOB
-            allowableBlobsAreas = regionprops(keeperLabel, 'Area');
-            allowableBlobsAreas = [allowableBlobsAreas.Area];
-            biggestBlobArea = max(allowableBlobsAreas);
-            keeperAreas = find(allowableBlobsAreas == biggestBlobArea);
-            keeperMask = ismember(keeperLabel, keeperAreas);
-            
-            subplot(2,2,3);
-            imshow(keeperMask);
-            
-            
-            % USE MASK ON ORIGINAL IMAGE
-            keeperBlobsImage = repmat(keeperMask,1,1,3);
-            
-            segImageRGB = image; % copy of original image
-            segImageRGB(~keeperBlobsImage) = 0;  % set all non-keeper pixels to zero
-
-            
-            % FIND BOUNDING BOX & CROP IMAGE
-            bBox = regionprops(keeperMask, 'BoundingBox').BoundingBox;
-%             disp(bBox);
-%             points = bbox2points(bBox);
-            
-            segImageRGB = imcrop(segImageRGB, bBox);
-            segImageBW = imcrop(keeperMask, bBox);
-            
-            subplot(2,2,4);
-            imshow(segImageBW);
-            
-            
-            % SAVE CROPPED IMAGES
-            imwrite(segImageRGB, "../assets/segmentOriginal.png");
-            imwrite(segImageBW, "../assets/segmentBW.png");
-            
-            % SAVE ORIGINAL SIZE IMAGES
-%             imwrite(segImageRGB, "../assets/segmentRGB.png");               
-%             imwrite(keeperMask, "../assets/segment.png");
-
-
 %% TEXTBILD - uncomment to compute skeleton for text image
             
-%             % CREATE BINARY IMAGE
-%             binaryText = BinaryImage.imageToBinary(image);
-%             subplot(2,2,1);
-%             imshow(binaryText);
-%             
-%             % CREATE SKELETON
-%             skel = bwskel(binaryText, 'MinBranchLength', 50); % remove sidebranches
-%             subplot(2,2,2);
-%             imshow(skel);
-%  
-%             subplot(2,2,4);
-%             imshow(labeloverlay(image,skel,'Transparency',0, 'Colormap', 'hot'));
-%             
-%             
+            % CREATE BINARY IMAGE
+            image = imadjust(image, [0.3 0.7], []);
+            imageWithGauss = GaussFilter.gauss(image, 7);
+            binaryText = BinaryImage.imageToBinary(imageWithGauss);
+            subplot(2,2,1);
+            imshow(binaryText);
+            
+            % CREATE SKELETON
+            skel = bwskel(binaryText, 'MinBranchLength', 50); % remove sidebranches
+            subplot(2,2,2);
+            imshow(skel);
+ 
+            subplot(2,2,4);
+            imshow(labeloverlay(image,skel,'Transparency',0, 'Colormap', 'hot'));
+            
+            
 % %% IMAGE REGISTRATION - uncomment to register images
 % 
 %             % FIXED & MOVING HAVE TO BE RGB OR GRAYSCALE IMAGES
@@ -147,7 +94,7 @@ classdef main
 %             fusedOriginals = imfuse(registeredOriginal, fixedOriginal, 'blend');
 %             figure;
 %             imshow(fusedOriginals);
-%              
+             
         end
     end
 end
