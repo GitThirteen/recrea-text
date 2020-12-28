@@ -40,11 +40,18 @@ classdef main
             % CREATE SKELETON
             skel = bwskel(binaryText, 'MinBranchLength', 40); % remove sidebranches (todo?)
             branchPoints = bwmorph(skel, 'branchpoints');
-            endPoints = bwmorph(skel, 'endpoints');
+            branchPoints = imdilate(branchPoints, strel('cube', 9));
+            %endPoints = bwmorph(skel, 'endpoints');
             
             %firstEndPoint = find(endPoints, 1, 'first');
+            %[width, height, depth] = size(skel);
+            %fx = mod(firstEndPoint, width);
+            %fy = firstEndPoint / width;
             
-            skel = skel - branchPoints - endPoints;
+            %skel = skel - branchPoints - endPoints;
+            skel = skel - branchPoints;
+            % REVERSE FLOOD-FILL
+            %skel = revFloodFill(skel, fx, fy, 1, 0.5);
             %subplot(2,2,2);
             imshow(skel);
  
@@ -98,7 +105,29 @@ classdef main
 %             fusedOriginals = imfuse(registeredOriginal, fixedOriginal, 'blend');
 %             figure;
 %             imshow(fusedOriginals);
-             
+        end
+        
+        % 
+        function skel = revFloodFill(skel, x, y, targetColor, replColor)
+            if (targetColor == replColor)
+                return;
+            elseif (skel(x, y) ~= targetColor)
+                return;
+            else
+                skel(x, y) = replColor;
+            end
+            
+            revFloodFill(skel, x - 1, y - 1, targetColor, replColor);
+            revFloodFill(skel, x, y - 1, targetColor, replColor);
+            revFloodFill(skel, x + 1, y - 1, targetColor, replColor);
+            revFloodFill(skel, x + 1, y, targetColor, replColor);
+            revFloodFill(skel, x + 1, y + 1, targetColor, replColor);
+            revFloodFill(skel, x, y + 1, targetColor, replColor);
+            revFloodFill(skel, x - 1, y + 1, targetColor, replColor);
+            revFloodFill(skel, x - 1, y, targetColor, replColor);
+            
+            skel = skel;
+            return;
         end
     end
 end
