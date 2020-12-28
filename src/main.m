@@ -10,14 +10,14 @@ classdef main
             imageWithGauss = GaussFilter.gauss(image, 7);
             mask = BinaryImage.imageToBinary(imageWithGauss);
             
-            subplot(2,2,1);
+            %subplot(2,2,1);
             imshow(mask);
             
             % CREATE LABELED IMAGE
             [labeledImage, numOfLabels] = bwlabel(mask);
             
             % SAVE BLOBS IN ARRAY
-            blobs = cell(numOfLabels, 1);
+            blobs = cell(numOfLabels, 1); % contains all blobs
             for i = 1 : numOfLabels
                 blob = labeledImage == i;
                 
@@ -33,19 +33,23 @@ classdef main
 %% TEXTBILD - uncomment to compute skeleton for text image
             
             % CREATE BINARY IMAGE
-            image = imadjust(image, [0.3 0.7], []);
-            imageWithGauss = GaussFilter.gauss(image, 7);
-            binaryText = BinaryImage.imageToBinary(imageWithGauss);
-            subplot(2,2,1);
-            imshow(binaryText);
+            binaryText = BinaryImage.imageToBinary(image);
+            %subplot(2,2,1);
+            %imshow(binaryText);
             
             % CREATE SKELETON
-            skel = bwskel(binaryText, 'MinBranchLength', 50); % remove sidebranches
-            subplot(2,2,2);
+            skel = bwskel(binaryText, 'MinBranchLength', 40); % remove sidebranches (todo?)
+            branchPoints = bwmorph(skel, 'branchpoints');
+            endPoints = bwmorph(skel, 'endpoints');
+            
+            %firstEndPoint = find(endPoints, 1, 'first');
+            
+            skel = skel - branchPoints - endPoints;
+            %subplot(2,2,2);
             imshow(skel);
  
-            subplot(2,2,4);
-            imshow(labeloverlay(image,skel,'Transparency',0, 'Colormap', 'hot'));
+            %subplot(2,2,4);
+            %imshow(labeloverlay(image, skel, 'Transparency', 0, 'Colormap', 'hot'));
             
             
 % %% IMAGE REGISTRATION - uncomment to register images
