@@ -6,23 +6,23 @@ classdef main
             addpath('../assets');
 %% SEGMENTIER-BILD
 
-            PRE-PROCESSING
+            %PRE-PROCESSING
             imageAdjusted = imadjust(image, [0.3 0.7], []);
             imageWithGauss = GaussFilter.gauss(imageAdjusted, 7);
             
-            CREATE BINARY IMAGE
+            %CREATE BINARY IMAGE
             mask = BinaryImage.imageToBinary(imageWithGauss);
             
-            subplot(2,2,1);
+            %subplot(2,2,1);
             imshow(mask);
             
-            CREATE LABELED IMAGE -> need REGION GROWING instead
+            %CREATE LABELED IMAGE -> need REGION GROWING instead
             [labeledImage, numOfLabels] = bwlabel(mask);
             
-            deviation array
+            %deviation array
             deviationsBlobs = zeros(1,numOfLabels); 
             
-            SAVE BLOBS IN ARRAY
+            %SAVE BLOBS IN ARRAY
             blobs = cell(numOfLabels, 1); % contains all blobs
             for i = 1 : numOfLabels
                 blob = labeledImage == i;
@@ -35,7 +35,7 @@ classdef main
                 img = imcrop(img, bBox);
                 blobs{i} = img;
                 
-                skeleton & deviation from straight line 
+                %skeleton & deviation from straight line 
                 skelblob = bwskel(blob);
 
                 endpointsBlob = bwmorph(skelblob, 'endpoints');
