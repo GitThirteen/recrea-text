@@ -22,7 +22,7 @@ classdef main
             %deviation array
             deviationsBlobs = zeros(1,numOfLabels); 
             
-            %SAVE BLOBS IN ARRAY
+            %SAVE BLOBS IN CELL ARRAY
             blobs = cell(numOfLabels, 1); % contains all blobs
             for i = 1 : numOfLabels
                 blob = labeledImage == i;
@@ -41,20 +41,19 @@ classdef main
                 endpointsBlob = bwmorph(skelblob, 'endpoints');
                 [r1, c1] = find(endpointsBlob,1, 'first');
                 [r2, c2] = find(endpointsBlob,1, 'last');
-                steigungBlob = (r2-r1)/(c2-c1);
+                %steigungBlob = (r2-r1)/(c2-c1);
 
                 numPixelsInBlob = int8(sum(skelblob(:)));
                 [rowsLastHalfPixels, colsLastHalfPixels] = find(blob, numPixelsInBlob/2 , 'last');
                 rMiddle = rowsLastHalfPixels(1);
                 cMiddle = colsLastHalfPixels(1);
 
-                for j = 1:(c2-c1)
-                    devX = (c1+j) - (cMiddle) ;
-                    devY = (r1 + j*steigungBlob) - (rMiddle);
-                    dev = norm([devX, devY]);
-                    deviationsBlobs(i) = dev;
-                end
-
+                % berechnet vorerest nur Abstand der jeweiligen Pixel, die
+                % in der Mitte der Kurve bzw. Vergleichsgeraden liegen.
+                devX = (c1+c2)/2 - (cMiddle) ;
+                devY = (r1+r2)/2 - (rMiddle);
+                dev = norm([devX, devY]);
+                deviationsBlobs(i) = dev;
             end
          
             % provisorisch - kann sonst nicht auf die Werte zugreifen, wenn
