@@ -64,7 +64,10 @@ classdef main
         end
 %% TEXTBILD - uncomment to compute skeleton for text image
             
-    function imageText = mainFuncText(image) % need : mainFunc(imSegments, imText)
+    function imageText = mainFuncText(image) 
+            addpath('./helpers');
+            addpath('../assets');
+            
             % CREATE BINARY IMAGE
             binaryText = Filter.imageToBinary(image, 0.85);
             %imshow(binaryText);
@@ -81,9 +84,12 @@ classdef main
             %label single branches of skeleton
             [labeledTextSkel, numOfTextLabels] = bwlabel(skel);
             
+            figure;
+            imshow(skel)
+            
       % FEHLER KÖNNTE HIER LIEGEN
-            %blobs = readcell('blobscell.dat');
-            %deviationsBlobs = readmatrix('deviationsBlobs.dat');
+            blobs = readcell('blobscell.dat');
+            deviationsBlobs = readmatrix('deviationsBlobs.dat');
             
             %compute deviation of skeleton from straight line connecting
             %both endpoints & saving value in array.
@@ -94,9 +100,9 @@ classdef main
                 endpoints = bwmorph(curve, 'endpoints');
                 [row1, col1] = find(endpoints, 1, 'first');
                 [row2, col2] = find(endpoints, 1, 'last');
-                img = Misc.modFloodFill(curve, [row1, col1], [row2, col2], 0);
-                figure;
-                imshow(img);
+                %img = Misc.modFloodFill(curve, [row1, col1], [row2, col2], 0);
+               % figure;
+               % imshow(img);
                 %steigung = (row2-row1)/(col2-col1);
                 
                 numPixelsInCurve = int16(sum(sum(curve==1)));
