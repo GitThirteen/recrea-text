@@ -43,8 +43,8 @@ classdef main
                 [r2, c2] = find(endpointsBlob,1, 'last');
                 %steigungBlob = (r2-r1)/(c2-c1);
 
-                numPixelsInBlob = int8(sum(skelblob(:)));
-                [rowsLastHalfPixels, colsLastHalfPixels] = find(blob, numPixelsInBlob/2 , 'last');
+                numPixelsInBlob = int16(sum(sum(skelblob==1)));
+                [rowsLastHalfPixels, colsLastHalfPixels] = find(skelblob, numPixelsInBlob/2 , 'last');
                 rMiddle = rowsLastHalfPixels(1);
                 cMiddle = colsLastHalfPixels(1);
 
@@ -94,7 +94,7 @@ classdef main
 %                 [row2, col2] = find(endpoints,1, 'last');
 %                 %steigung = (row2-row1)/(col2-col1);
 %                 
-%                 numPixelsInCurve = int8(sum(curve(:)));
+%                 numPixelsInCurve = int16(sum(curve(:)));
 %                 lastHalfPixelsInCurve = find(curve, numPixelsInCurve/2, 'last');
 %                 [rowMiddle, colMiddle] = find(lastHalfPixelsInCurve, 1, 'first');
 %                 
