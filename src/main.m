@@ -66,7 +66,7 @@ classdef main
             
     function imageText = mainFuncText(image) % need : mainFunc(imSegments, imText)
             % CREATE BINARY IMAGE
-            binaryText = BinaryImage.imageToBinary(image);
+            binaryText = Filter.imageToBinary(image, 0.85);
             %imshow(binaryText);
             
             % CREATE SKELETON -> need SKELETONIZATION algorithm

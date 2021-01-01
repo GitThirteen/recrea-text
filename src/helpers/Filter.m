@@ -1,11 +1,13 @@
-classdef BinaryImage
-    % Returns a black & while image depending on the set threshold
+classdef Filter
+    %FILTER Summary of this class goes here
+    %   Detailed explanation goes here
     
     methods(Static)
-        function binaryImage = imageToBinary(image)
+        % Returns a black & while image depending on the set threshold
+        function binaryImage = imageToBinary(image, threshold)
             grayImage = rgb2gray(image);
             
-            binarized = imbinarize(grayImage, 'adaptive', 'Sensitivity', 0.85);
+            binarized = imbinarize(grayImage, 'adaptive', 'Sensitivity', threshold);
             
             numblackpixel = sum(binarized == 0);
             numwhitepixel = sum(binarized == 1);
@@ -19,6 +21,14 @@ classdef BinaryImage
             binaryImage = imopen(binarized, openObj);
             binaryImage = imclose(binaryImage, closeObj);
         end
+        
+        
+        
+        function gaussImage = gaussFilter(image, strength)
+            gaussImage = imgaussfilt(image, strength);
+        end
+        
+        
     end
 end
 
