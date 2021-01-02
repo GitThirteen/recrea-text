@@ -1,12 +1,12 @@
 classdef main
     methods(Static)
         %% SEGMENTIER-BILD
-        function image = mainFuncObj(image)
+        function image = mainFunc(imageObj, imageText)
             addpath('./helpers');
             addpath('../assets');
 
             %PRE-PROCESSING
-            imageAdjusted = imadjust(image, [0.3 0.7], []);
+            imageAdjusted = imadjust(imageObj, [0.3 0.7], []);
             imageWithGauss = Filter.gaussFilter(imageAdjusted, 7);
             
             %CREATE BINARY IMAGE
@@ -15,7 +15,7 @@ classdef main
             %subplot(2,2,1);
             figure;
             imshow(mask);
-            
+           
             %CREATE LABELED IMAGE -> need REGION GROWING instead
             [labeledImage, numOfLabels] = bwlabel(mask);
             
@@ -27,7 +27,7 @@ classdef main
             for i = 1 : numOfLabels
                 blob = labeledImage == i;
                 
-                img = image;
+                img = imageObj;
                 mask = repmat(blob,1,1,3);
                 img(~mask) = 0;
                 
@@ -55,21 +55,12 @@ classdef main
                 dev = norm([devX, devY]);
                 deviationsBlobs(i) = dev;
             end
-         
-            % provisorisch - kann sonst nicht auf die Werte zugreifen, wenn
-            % der Teil auskommentiert ist
-            writecell(blobs, 'blobscell.dat');
-            writematrix(deviationsBlobs, 'deviationsBlobs.dat');
             
-        end
-%% TEXTBILD - uncomment to compute skeleton for text image
-            
-    function imageText = mainFuncText(image) 
-            addpath('./helpers');
-            addpath('../assets');
+%% TEXTBILD 
+          
             
             % CREATE BINARY IMAGE
-            binaryText = Filter.imageToBinary(image, 0.85);
+            binaryText = Filter.imageToBinary(imageText, 0.85);
             %imshow(binaryText);
             
             % CREATE SKELETON -> need SKELETONIZATION algorithm
@@ -86,10 +77,6 @@ classdef main
             
             figure;
             imshow(skel)
-            
-      % FEHLER KÖNNTE HIER LIEGEN
-            blobs = readcell('blobscell.dat');
-            deviationsBlobs = readmatrix('deviationsBlobs.dat');
             
             %compute deviation of skeleton from straight line connecting
             %both endpoints & saving value in array.
@@ -119,18 +106,23 @@ classdef main
             
             % suche Blob, der den (annähernd) gleichen deviation Wert aufweist
             % wie die Kurve des Branches im Text
-            firstTextDev = deviationsText(1);
+            fifthTextDev = deviationsText(5);
             minDiff = 10000;
             closestBlob = zeros(2);
             for k=1:length(blobs)
-                difference = firstTextDev - deviationsBlobs(k);
+                difference = fifthTextDev - deviationsBlobs(k);
                 if difference < minDiff
                     closestBlob = blobs{k};
                 end
             end
             
+            toBeMatched = labeledTextSkel == 5;
+            
             figure;
-            imshowpair(closestBlob, image)
+            subplot(1,2,1)
+            imshow(closestBlob)
+            subplot(1,2,2)
+            imshow(toBeMatched)
             
             %firstEndPoint = find(endPoints, 1, 'first');
             %[width, height, depth] = size(skel);
