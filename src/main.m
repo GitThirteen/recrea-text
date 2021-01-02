@@ -43,6 +43,8 @@ classdef main
                 [r2, c2] = find(endpointsBlob, 1, 'last');  % x, y of point B
                 %steigungBlob = (r2-r1)/(c2-c1);
 
+                % dieser Part findet noch nicht das richtige Pixel in der
+                % Mitte der Kurve
                 numPixelsInBlob = int16(sum(sum(skelblob==1)));
                 [rowsLastHalfPixels, colsLastHalfPixels] = find(skelblob, numPixelsInBlob/2 , 'last');
                 rMiddle = rowsLastHalfPixels(1);
@@ -58,7 +60,6 @@ classdef main
             
 %% TEXTBILD 
           
-            
             % CREATE BINARY IMAGE
             binaryText = Filter.imageToBinary(imageText, 0.85);
             %imshow(binaryText);
@@ -75,8 +76,10 @@ classdef main
             %label single branches of skeleton
             [labeledTextSkel, numOfTextLabels] = bwlabel(skel);
             
+            colLabel = label2rgb(labeledTextSkel, 'jet', 'k');
+            
             figure;
-            imshow(skel)
+            imshow(colLabel)
             
             %compute deviation of skeleton from straight line connecting
             %both endpoints & saving value in array.
@@ -87,14 +90,18 @@ classdef main
                 endpoints = bwmorph(curve, 'endpoints');
                 [row1, col1] = find(endpoints, 1, 'first');
                 [row2, col2] = find(endpoints, 1, 'last');
-                %img = Misc.modFloodFill(curve, [row1, col1], [row2, col2], 0);
+               % imgFF = Misc.modFloodFill(curve, [row1, col1], [row2, col2], 0);
                % figure;
-               % imshow(img);
+               % imshow(imgFF);
                 %steigung = (row2-row1)/(col2-col1);
                 
+                % dieser Part findet noch nicht das richtige Pixel in der
+                % Mitte der Kurve
                 numPixelsInCurve = int16(sum(sum(curve==1)));
-                lastHalfPixelsInCurve = find(curve, numPixelsInCurve/2, 'last');
-                [rowMiddle, colMiddle] = find(lastHalfPixelsInCurve, 1, 'first');
+                
+                [rowsLastHalfPixelsCurve, colsLastHalfPixelsCurve] = find(curve, numPixelsInCurve/2 , 'last');
+                rowMiddle = rowsLastHalfPixelsCurve(1);
+                colMiddle = colsLastHalfPixelsCurve(1);
                 
                 % berechnet vorerest nur Abstand der jeweiligen Pixel, die
                 % in der Mitte der Kurve bzw. Vergleichsgeraden liegen.
@@ -107,16 +114,17 @@ classdef main
             % suche Blob, der den (annähernd) gleichen deviation Wert aufweist
             % wie die Kurve des Branches im Text
             fifthTextDev = deviationsText(5);
-            minDiff = 10000;
+            minDiff = 100000;
             closestBlob = zeros(2);
             for k=1:length(blobs)
-                difference = fifthTextDev - deviationsBlobs(k);
-                if difference < minDiff
+                difference = abs(fifthTextDev) - abs(deviationsBlobs(k));
+                if abs(difference) < minDiff
+                    minDiff = abs(difference);
                     closestBlob = blobs{k};
                 end
             end
             
-            toBeMatched = labeledTextSkel == 5;
+            toBeMatched = (labeledTextSkel == 5);
             
             figure;
             subplot(1,2,1)
@@ -134,7 +142,7 @@ classdef main
             % REVERSE FLOOD-FILL
             %skel = revFloodFill(skel, fx, fy, 1, 0.5);
             %subplot(2,2,2);
-            imshow(skel);
+            %imshow(skel);
  
             %subplot(2,2,4);
             %imshow(labeloverlay(image, skel, 'Transparency', 0, 'Colormap', 'hot'));

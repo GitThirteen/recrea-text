@@ -22,14 +22,14 @@ classdef Misc
                    skel = skel - gap;
                end
                    
-               modFloodFill(skel, [sRow - 1, sCol + 1], endP, counter + 1);
-               modFloodFill(skel, [sRow + 0, sCol + 1], endP, counter + 1);
-               modFloodFill(skel, [sRow + 1, sCol + 1], endP, counter + 1);
-               modFloodFill(skel, [sRow - 1, sCol + 0], endP, counter + 1);
-               modFloodFill(skel, [sRow + 1, sCol + 0], endP, counter + 1);
-               modFloodFill(skel, [sRow - 1, sCol - 1], endP, counter + 1);
-               modFloodFill(skel, [sRow + 0, sCol - 1], endP, counter + 1);
-               modFloodFill(skel, [sRow + 1, sCol - 1], endP, counter + 1);
+               Misc.modFloodFill(skel, [sRow - 1, sCol + 1], endP, counter + 1);
+               Misc.modFloodFill(skel, [sRow + 0, sCol + 1], endP, counter + 1);
+               Misc.modFloodFill(skel, [sRow + 1, sCol + 1], endP, counter + 1);
+               Misc.modFloodFill(skel, [sRow - 1, sCol + 0], endP, counter + 1);
+               Misc.modFloodFill(skel, [sRow + 1, sCol + 0], endP, counter + 1);
+               Misc.modFloodFill(skel, [sRow - 1, sCol - 1], endP, counter + 1);
+               Misc.modFloodFill(skel, [sRow + 0, sCol - 1], endP, counter + 1);
+               Misc.modFloodFill(skel, [sRow + 1, sCol - 1], endP, counter + 1);
 
                return;
            end
