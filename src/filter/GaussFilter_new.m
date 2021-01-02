@@ -15,7 +15,7 @@ classdef GaussFilter_new
             % Loop.
             for i = 1 : size(workImage, 1) - n
                 for j = 1 : size(workImage, 2) - m
-                    temp = I(i:(i + n), j:(j + m)) .* kernel;
+                    temp = workImage(i:(i + n), j:(j + m)) .* kernel;
                     retImage(i,j) = sum(temp(:));
                 end
             end
