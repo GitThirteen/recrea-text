@@ -83,11 +83,12 @@ classdef main
                 deviationsText(i) = Misc.curvature(curve, [row1, col1], [row2, col2]);   
             end
             
-            
+            figure;
+            for l = 1:numOfTextLabels
             % als Test vorerst nur für 5. Text-Blob (=C im ABC Bild) ausprobiert:
             % suche Blob, der den (annähernd) gleichen deviation Wert aufweist
             % wie die Kurve des Branches im Text
-            TextDev = deviationsText(5);
+            TextDev = deviationsText(l);
             minDiff = 100000;
             closestBlob = zeros(2);
             for k=1:length(blobs)
@@ -98,13 +99,11 @@ classdef main
                 end
             end
             
-            toBeMatched = (labeledTextSkel == 5);
-            
-            figure;
-            subplot(1,2,1)
+            subplot(2,numOfTextLabels,l)
             imshow(closestBlob)
-            subplot(1,2,2)
-            imshow(toBeMatched)
+            
+            end
+            
             
             %firstEndPoint = find(endPoints, 1, 'first');
             %[width, height, depth] = size(skel);
