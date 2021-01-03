@@ -2,8 +2,11 @@ classdef Transform
 
     methods(Static)
           % blob = the segmented object (blob) to be rotated
-          % devBlob = value of the blob describing deviation from straight line 
-          % devText = value of the text curve describing deviation from straight line 
+          % endpBlob = array of endpoints of the Blob (of the form [r1,c1,r2,c2])
+          % endpText = array of endpoints of the Text-curve
+          % (of the form [r1,c1,r2,c2])
+          % devBlob = array of the blob describing deviation properties from straight line 
+          % devText = array of the text curve describing deviation properties from straight line 
            function imRotated = rotate(blob, endpBlob, endpText, devBlob, devText)
                 
                %endpoints of curves

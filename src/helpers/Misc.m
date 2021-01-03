@@ -49,15 +49,15 @@ classdef Misc
            end
      
            
-           function dev = curvature(skelblob, endp1, endp2)
+           function dev = curvature(skelblob, endpoints)
                 
-               % endp1 & endp2 are of type [row, col]
+               % endpoints of type [row1, col1, row2, col2]
                
                 numPixelsInBlob = sum(sum(skelblob==1));
                 
                 middlePix = skelblob ;
-                middlePix(endp1) = 0;
-                middlePix(endp2) = 0;
+                middlePix(endpoints(1:2)) = 0;
+                middlePix(endpoints(3:4)) = 0;
                 countPix = 0 ;
                 
                 % entferne wiederholt die endpunkte des skeletons, damit
@@ -76,9 +76,13 @@ classdef Misc
                 
                 % berechnet Abstand der jeweiligen Pixel, die
                 % in der Mitte der Kurve bzw. Vergleichsgeraden liegen.
-                devCol = (endp1(2) + endp2(2))/2 - (cMiddle(1));
-                devRow = (endp1(1) + endp2(1))/2 - (rMiddle(1));
+                devCol = (endpoints(2) + endpoints(4))/2 - (cMiddle(1));
+                devRow = (endpoints(1) + endpoints(3))/2 - (rMiddle(1));
           
+                % 1st entry = distance
+                % 2nd & 3rd entry = vector from middle of curve to middle
+                % of line
+                % 4th & 5th entry = middle point of curve
                 dev = [norm([devRow, devCol]), devRow, devCol, rMiddle(1), cMiddle(1)];
                 
                 return;

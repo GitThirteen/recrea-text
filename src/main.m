@@ -48,7 +48,7 @@ classdef main
                 [r2, c2] = find(endpoints, 1, 'last');  % x, y of point B
                 endpointsBlobs(i,:) = [r1,c1,r2,c2];
                 
-                deviationsBlobs(i,:) = Misc.curvature(skelblob, [r1, c1], [r2,c2]);
+                deviationsBlobs(i,:) = Misc.curvature(skelblob, endpointsBlobs(i,:));
             end
             
 %% TEXTBILD 
@@ -107,7 +107,7 @@ classdef main
                % figure;
                % imshow(imgFF);
                
-                deviationsText(i,:) = Misc.curvature(curve, [row1, col1], [row2, col2]);   
+                deviationsText(i,:) = Misc.curvature(curve, endpointsCurves(i,:));   
                 bbox = regionprops(curve, 'BoundingBox').BoundingBox;
                 curve = imcrop(curve, bbox);
                 
