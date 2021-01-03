@@ -7,10 +7,10 @@ classdef main
 
             %PRE-PROCESSING
             imageAdjusted = imadjust(imageObj, [0.3 0.7], []);
-            imageWithGauss = Filter.gaussFilter(imageAdjusted, 7);
+            %imageWithGauss = Filter.gaussFilter(imageAdjusted, 1, 4);
             
             %CREATE BINARY IMAGE
-            mask = Filter.imageToBinary(imageWithGauss, 0.85);
+            mask = Filter.imageToBinary(imageAdjusted, 0.85);
             
             %subplot(2,2,1);
             figure;
@@ -70,7 +70,7 @@ classdef main
             % remove branchpoints
             branchPoints = bwmorph(skel, 'branchpoints');
             branchPoints = imdilate(branchPoints, strel('cube', 9));
-            skel = skel - branchPoints;
+            skel(branchPoints) = 0;
             %endPoints = bwmorph(skel, 'endpoints');
             
             %label single branches of skeleton
@@ -86,13 +86,23 @@ classdef main
             deviationsText = zeros(numOfTextLabels); 
             for i = 1 : numOfTextLabels
                 curve = labeledTextSkel == i;
-                
+
                 endpoints = bwmorph(curve, 'endpoints');
                 [row1, col1] = find(endpoints, 1, 'first');
                 [row2, col2] = find(endpoints, 1, 'last');
-               % imgFF = Misc.modFloodFill(curve, [row1, col1], [row2, col2], 0);
-               % figure;
-               % imshow(imgFF);
+                imgFF = Misc.traceLine(curve, [row1, col1], [row2, col2]);
+                figure;
+                
+                for j = 1 : length(imgFF)
+                    row = imgFF(j, 1);
+                    col = imgFF(j, 2);
+                    
+                    skel = imdilate(skel(row, col), strel('cube', 9));
+                end
+                
+                imshow(skel);
+                
+                imshow(imgFF);
                 %steigung = (row2-row1)/(col2-col1);
                 
                 % dieser Part findet noch nicht das richtige Pixel in der
