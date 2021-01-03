@@ -20,6 +20,13 @@ classdef Transform
               return;
            end
      
+           function imScaled = scaling(blob, areaBlob, areaText)
+               
+               factor = areaText/areaBlob;
+               
+               imScaled = imresize(blob, factor);
+               
+           end
            
     end
 end

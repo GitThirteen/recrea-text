@@ -27,6 +27,7 @@ classdef main
             blobs = cell(numOfLabels, 1); % contains all blobs
             %SAVE ENDPOINTS IN ARRAY
             endpointsBlobs = zeros(numOfLabels, 4);
+            areaBlobs = zeros(numOfLabels);
             for i = 1 : numOfLabels
                 blob = labeledImage == i;
                 
@@ -40,6 +41,7 @@ classdef main
                 
                 %skeleton & deviation from straight line
                 skelblob = bwskel(blob);
+                areaBlobs(i) = sum(sum(skelblob==1));
 
                 endpoints = bwmorph(skelblob, 'endpoints');
                 [r1, c1] = find(endpoints, 1, 'first'); % x, y of point A
@@ -76,9 +78,11 @@ classdef main
             % save endpoints and deviation values in arrays
             deviationsText = zeros(numOfTextLabels,3); 
             endpointsCurves = zeros(numOfTextLabels,4);
+            areaCurves = zeros(numOfTextLabels);
             figure;
             for i = 1 : numOfTextLabels
                 curve = labeledTextSkel == i;
+                areaCurves(i) = sum(sum(curve==1));
 
                 endpoints = bwmorph(curve, 'endpoints');
                 [row1, col1] = find(endpoints, 1, 'first');
@@ -131,15 +135,23 @@ classdef main
  
             % rotate Blob
             rotatedBlob = Transform.rotate(closestBlob, deviationsBlobs(index,:), deviationsText(l,:));
-            usedBlobs{l} = rotatedBlob;
+            
+            % scale Blob
+            scaledBlob = Transform.scaling(rotatedBlob, areaBlobs(index), areaCurves(l));
+            
+            usedBlobs{l} = scaledBlob;
             
             subplot(2,numOfTextLabels, numOfTextLabels+l)
-            imshow(rotatedBlob)
+            imshow(scaledBlob)
             
             end
         
             
+            % make output image 
+            % ...
             
+          
+            %% other things (?) 
             %firstEndPoint = find(endPoints, 1, 'first');
             %[width, height, depth] = size(skel);
             %fx = mod(firstEndPoint, width);
