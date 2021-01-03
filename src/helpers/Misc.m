@@ -33,6 +33,43 @@ classdef Misc
 
                return;
            end
+     
+           
+           function dev = curvature(skelblob, endp1, endp2)
+                
+               % endp1 & endp2 are of type [row, col]
+               
+                numPixelsInBlob = sum(sum(skelblob==1));
+                
+                middlePix = skelblob ;
+                middlePix(endp1) = 0;
+                middlePix(endp2) = 0;
+                countPix = 0 ;
+                
+                % entferne wiederholt die endpunkte des skeletons, damit
+                % nur mehr mittleres Pixel übrig bleibt
+                while countPix < numPixelsInBlob/2-2
+                    endpix = bwmorph(middlePix, 'endpoints');
+                    endpix1 = find(endpix, 1, 'first');
+                    endpix2 = find(endpix, 1, 'last');
+                    middlePix(endpix1) = 0;
+                    middlePix(endpix2) = 0;
+                    countPix = countPix +1;
+                end
+                
+                %[rowsLastHalfPixels, colsLastHalfPixels] = find(skelblob, numPixelsInBlob/2 , 'last');
+                [rMiddle, cMiddle] = find(middlePix==1);
+                
+
+                % berechnet Abstand der jeweiligen Pixel, die
+                % in der Mitte der Kurve bzw. Vergleichsgeraden liegen.
+                devX = (endp1(2) + endp2(2))/2 - (cMiddle(1));
+                devY = (endp1(1) + endp2(1))/2 - (rMiddle(1));
+                dev = norm([devX, devY]);
+                
+                return;
+               
+           end
     end
 end
 
