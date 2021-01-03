@@ -19,8 +19,9 @@ classdef main
             %CREATE LABELED IMAGE -> need REGION GROWING instead
             [labeledImage, numOfLabels] = bwlabel(mask);
             
-            %deviation array
-            deviationsBlobs = zeros(1,numOfLabels); 
+            %deviation array containing distance value, deviationRpw and
+            %deviationColumn
+            deviationsBlobs = zeros(numOfLabels,3);  
             
             %SAVE BLOBS IN CELL ARRAY
             blobs = cell(numOfLabels, 1); % contains all blobs
@@ -45,7 +46,7 @@ classdef main
                 [r2, c2] = find(endpoints, 1, 'last');  % x, y of point B
                 endpointsBlobs(i,:) = [r1,c1,r2,c2];
                 
-                deviationsBlobs(i) = Misc.curvature(skelblob, [r1, c1], [r2,c2]);
+                deviationsBlobs(i,:) = Misc.curvature(skelblob, [r1, c1], [r2,c2]);
             end
             
 %% TEXTBILD 
@@ -73,53 +74,48 @@ classdef main
             %compute deviation of skeleton from straight line, that
             %connects both endpoints 
             % save endpoints and deviation values in arrays
-            deviationsText = zeros(numOfTextLabels); 
+            deviationsText = zeros(numOfTextLabels,3); 
             endpointsCurves = zeros(numOfTextLabels,4);
+            figure;
             for i = 1 : numOfTextLabels
                 curve = labeledTextSkel == i;
 
                 endpoints = bwmorph(curve, 'endpoints');
                 [row1, col1] = find(endpoints, 1, 'first');
                 [row2, col2] = find(endpoints, 1, 'last');
+                endpointsCurves(i,:) = [row1, col1, row2, col2];
+                
                 imgFF = Misc.traceLine(curve, [row1, col1], [row2, col2]);
-                figure;
+                
                 
                 for j = 1 : length(imgFF)
                     row = imgFF(j, 1);
                     col = imgFF(j, 2);
                     
-                    skel = imdilate(skel(row, col), strel('cube', 9));
+                   % skel = imdilate(skel(row, col), strel('cube', 9));
                 end
                 
-                imshow(skel);
+                %imshow(skel);
                 
-                imshow(imgFF);
-                %steigung = (row2-row1)/(col2-col1);
+                %imshow(imgFF);
                 
-                % dieser Part findet noch nicht das richtige Pixel in der
-                % Mitte der Kurve
-                numPixelsInCurve = int16(sum(sum(curve==1)));
-                
-                [rowsLastHalfPixelsCurve, colsLastHalfPixelsCurve] = find(curve, numPixelsInCurve/2 , 'last');
-                rowMiddle = rowsLastHalfPixelsCurve(1);
-                colMiddle = colsLastHalfPixelsCurve(1);
-                
-                endpointsCurve = bwmorph(curve, 'endpoints');
-                [row1, col1] = find(endpointsCurve, 1, 'first');
-                [row2, col2] = find(endpointsCurve, 1, 'last');
-                endpointsCurves(i,:) = [row1, col1, row2, col2];
                % imgFF = Misc.modFloodFill(curve, [row1, col1], [row2, col2], 0);
                % figure;
                % imshow(imgFF);
                
-                deviationsText(i) = Misc.curvature(curve, [row1, col1], [row2, col2]);   
+                deviationsText(i,:) = Misc.curvature(curve, [row1, col1], [row2, col2]);   
+                bbox = regionprops(curve, 'BoundingBox').BoundingBox;
+                curve = imcrop(curve, bbox);
+                
+                subplot(2,numOfTextLabels, i)
+                imshow(curve)
             end
             
-            figure;
+            usedBlobs = cell(numOfTextLabels, 1); % contains all used blobs;
             for l = 1:numOfTextLabels
             % suche Blob, der den (annähernd) gleichen deviation Wert aufweist
             % wie die Kurve des Branches im Text
-            TextDev = deviationsText(l);
+            TextDev = deviationsText(l,1);
             minDiff = 100000;
             closestBlob = zeros(2);
             index = 0;
@@ -132,10 +128,12 @@ classdef main
                 end
             end
             
-            % rotiere den gefundenen Blob
-            rotatedBlob = Transform.rotate(closestBlob, endpointsBlobs(index,:), endpointsCurves(l,:), deviationsBlobs(index), TextDev);
+ 
+            % rotate Blob
+            rotatedBlob = Transform.rotate(closestBlob, deviationsBlobs(index,:), deviationsText(l,:));
+            usedBlobs{l} = rotatedBlob;
             
-            subplot(2,numOfTextLabels,l)
+            subplot(2,numOfTextLabels, numOfTextLabels+l)
             imshow(rotatedBlob)
             
             end
