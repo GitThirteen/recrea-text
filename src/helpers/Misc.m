@@ -79,7 +79,7 @@ classdef Misc
                 devCol = (endp1(2) + endp2(2))/2 - (cMiddle(1));
                 devRow = (endp1(1) + endp2(1))/2 - (rMiddle(1));
           
-                dev = [norm([devRow, devCol]), devRow, devCol];
+                dev = [norm([devRow, devCol]), devRow, devCol, rMiddle(1), cMiddle(1)];
                 
                 return;
                

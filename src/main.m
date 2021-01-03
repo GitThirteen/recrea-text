@@ -21,7 +21,7 @@ classdef main
             
             %deviation array containing distance value, deviationRpw and
             %deviationColumn
-            deviationsBlobs = zeros(numOfLabels,3);  
+            deviationsBlobs = zeros(numOfLabels,5);  
             
             %SAVE BLOBS IN CELL ARRAY
             blobs = cell(numOfLabels, 1); % contains all blobs
@@ -76,7 +76,7 @@ classdef main
             %compute deviation of skeleton from straight line, that
             %connects both endpoints 
             % save endpoints and deviation values in arrays
-            deviationsText = zeros(numOfTextLabels,3); 
+            deviationsText = zeros(numOfTextLabels,5); 
             endpointsCurves = zeros(numOfTextLabels,4);
             areaCurves = zeros(numOfTextLabels);
             figure;
@@ -134,7 +134,7 @@ classdef main
             
  
             % rotate Blob
-            rotatedBlob = Transform.rotate(closestBlob, deviationsBlobs(index,:), deviationsText(l,:));
+            rotatedBlob = Transform.rotate(closestBlob, endpointsBlobs(index,:), endpointsCurves(l,:), deviationsBlobs(index,:), deviationsText(l,:));
             
             % scale Blob
             scaledBlob = Transform.scaling(rotatedBlob, areaBlobs(index), areaCurves(l));
