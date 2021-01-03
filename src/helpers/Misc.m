@@ -65,7 +65,17 @@ classdef Misc
                 % in der Mitte der Kurve bzw. Vergleichsgeraden liegen.
                 devX = (endp1(2) + endp2(2))/2 - (cMiddle(1));
                 devY = (endp1(1) + endp2(1))/2 - (rMiddle(1));
-                dev = norm([devX, devY]);
+                
+                % an dem kriterium mit den vorzeichen je nach lage des 
+                % blobs zur verbindungsgeraden müsste noch gefeilt werden
+                signumX = sign(devX);
+%                 signumY = sign(devY);
+%                 
+%                 signum = 1;
+%                 if signumX < 0 | signumY < 0 
+%                     signum = -1
+%                 end
+                dev = signumX*norm([devX, devY]);
                 
                 return;
                
