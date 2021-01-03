@@ -20,7 +20,7 @@ classdef main
             [labeledImage, numOfLabels] = bwlabel(mask);
             
             %deviation array
-            deviationsBlobs = zeros(1,numOfLabels); 
+            deviationsBlobs = zeros(numOfLabels,3); 
             
             %SAVE BLOBS IN CELL ARRAY
             blobs = cell(numOfLabels, 1); % contains all blobs
@@ -45,7 +45,7 @@ classdef main
                 [r2, c2] = find(endpoints, 1, 'last');  % x, y of point B
                 endpointsBlobs(i,:) = [r1,c1,r2,c2];
                 
-                deviationsBlobs(i) = Misc.curvature(skelblob, [r1, c1], [r2,c2]);
+                deviationsBlobs(i,:) = Misc.curvature(skelblob, [r1, c1], [r2,c2]);
             end
             
 %% TEXTBILD 
@@ -73,8 +73,9 @@ classdef main
             %compute deviation of skeleton from straight line, that
             %connects both endpoints 
             % save endpoints and deviation values in arrays
-            deviationsText = zeros(numOfTextLabels); 
+            deviationsText = zeros(numOfTextLabels, 3); 
             endpointsCurves = zeros(numOfTextLabels,4);
+            figure;
             for i = 1 : numOfTextLabels
                 curve = labeledTextSkel == i;
                 
@@ -86,14 +87,20 @@ classdef main
                % figure;
                % imshow(imgFF);
                 
-                deviationsText(i) = Misc.curvature(curve, [row1, col1], [row2, col2]);   
+                deviationsText(i,:) = Misc.curvature(curve, [row1, col1], [row2, col2]);   
+                
+                bbox = regionprops(curve, 'BoundingBox').BoundingBox;
+                curve = imcrop(curve, bbox);
+                
+                subplot(2,numOfTextLabels, i)
+                imshow(curve)
             end
             
-            figure;
+            usedBlobs = cell(numOfTextLabels, 1); % contains all used blobs;
             for l = 1:numOfTextLabels
             % suche Blob, der den (annähernd) gleichen deviation Wert aufweist
             % wie die Kurve des Branches im Text
-            TextDev = deviationsText(l);
+            TextDev = deviationsText(l,1);
             minDiff = 100000;
             closestBlob = zeros(2);
             index = 0;
@@ -107,9 +114,10 @@ classdef main
             end
             
             % rotiere den gefundenen Blob
-            rotatedBlob = Transform.rotate(closestBlob, endpointsBlobs(index,:), endpointsCurves(l,:), deviationsBlobs(index), TextDev);
+            rotatedBlob = Transform.rotate(closestBlob, deviationsBlobs(index,:), deviationsText(l,:));
+            usedBlobs{l} = rotatedBlob;
             
-            subplot(2,numOfTextLabels,l)
+            subplot(2,numOfTextLabels, numOfTextLabels+l)
             imshow(rotatedBlob)
             
             end

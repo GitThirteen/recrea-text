@@ -60,22 +60,12 @@ classdef Misc
                 %[rowsLastHalfPixels, colsLastHalfPixels] = find(skelblob, numPixelsInBlob/2 , 'last');
                 [rMiddle, cMiddle] = find(middlePix==1);
                 
-
                 % berechnet Abstand der jeweiligen Pixel, die
                 % in der Mitte der Kurve bzw. Vergleichsgeraden liegen.
-                devX = (endp1(2) + endp2(2))/2 - (cMiddle(1));
-                devY = (endp1(1) + endp2(1))/2 - (rMiddle(1));
-                
-                % an dem kriterium mit den vorzeichen je nach lage des 
-                % blobs zur verbindungsgeraden müsste noch gefeilt werden
-                signumX = sign(devX);
-%                 signumY = sign(devY);
-%                 
-%                 signum = 1;
-%                 if signumX < 0 | signumY < 0 
-%                     signum = -1
-%                 end
-                dev = signumX*norm([devX, devY]);
+                devCol = (endp1(2) + endp2(2))/2 - (cMiddle(1));
+                devRow = (endp1(1) + endp2(1))/2 - (rMiddle(1));
+          
+                dev = [norm([devRow, devCol]), devRow, devCol];
                 
                 return;
                
