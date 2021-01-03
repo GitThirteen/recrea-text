@@ -7,10 +7,10 @@ classdef main
 
             %PRE-PROCESSING
             imageAdjusted = imadjust(imageObj, [0.3 0.7], []);
-            imageWithGauss = Filter.gaussFilter(imageAdjusted, 7);
+            %imageWithGauss = Filter.gaussFilter(imageAdjusted, 2, 7);
             
             %CREATE BINARY IMAGE
-            mask = Filter.imageToBinary(imageWithGauss, 0.85);
+            mask = Filter.imageToBinary(imageAdjusted, 0.85);
             
             %subplot(2,2,1);
             figure;
@@ -57,8 +57,7 @@ classdef main
             % remove branchpoints
             branchPoints = bwmorph(skel, 'branchpoints');
             branchPoints = imdilate(branchPoints, strel('cube', 9));
-            skel = skel - branchPoints;
-            %endPoints = bwmorph(skel, 'endpoints');
+            skel(branchPoints) = 0;
             
             %label single branches of skeleton
             [labeledTextSkel, numOfTextLabels] = bwlabel(skel);
