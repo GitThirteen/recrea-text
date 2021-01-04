@@ -184,11 +184,9 @@ classdef main
                 blobOut = usedBlobs{i};
                 curveOut = labeledTextSkel == i;
                 
-                bbox = regionprops(curveOut, 'BoundingBox').BoundingBox;
-                colLeftTop = bbox(1);
-                rowLeftTop = bbox(2);
-                %width = bbox(3);
-                %height = bbox(4);
+                % xlim = lower x, upper x
+                % ylim = lower y, upper y
+                [xlim, ylim] = regionprops(curveOut, 'BoundingBox');
                 
                 numRowsBlob = size(blobOut,1);
                 numColsBlob = size(blobOut,2);
