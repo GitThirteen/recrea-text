@@ -1,4 +1,4 @@
-classdef Misc
+classdef Algorithms
     %MODFLOODFILL Summary of this class goes here
     %   Detailed explanation goes here
 
@@ -8,7 +8,7 @@ classdef Misc
            % endP - the end of a passed-in line
            % pts - an array containing all seperation points
            function result = traceLine(skel, startP, endP)
-               result = Misc.trace(skel, startP, endP, zeros(100000,2), 0, 0);
+               result = Algorithms.trace(skel, startP, endP, zeros(100000,2), 0, 0);
            end
            
            function result = trace(skel, startP, endP, pts, ctr, index)
@@ -31,35 +31,35 @@ classdef Misc
                skel(sRow, sCol) = 0;
 
                if (skel(sRow - 1, sCol + 1) ~= 0)
-                   result = Misc.trace(skel, [sRow - 1, sCol + 1], endP, pts, ctr + 1, index);
+                   result = Algorithms.trace(skel, [sRow - 1, sCol + 1], endP, pts, ctr + 1, index);
                    return;
                end
                if (skel(sRow + 0, sCol + 1) ~= 0)
-                   result = Misc.trace(skel, [sRow + 0, sCol + 1], endP, pts, ctr + 1, index);
+                   result = Algorithms.trace(skel, [sRow + 0, sCol + 1], endP, pts, ctr + 1, index);
                    return;
                end
                if (skel(sRow + 1, sCol + 1) ~= 0)
-                   result = Misc.trace(skel, [sRow + 1, sCol + 1], endP, pts, ctr + 1, index);
+                   result = Algorithms.trace(skel, [sRow + 1, sCol + 1], endP, pts, ctr + 1, index);
                    return;
                end
                if (skel(sRow - 1, sCol + 0) ~= 0)
-                   result = Misc.trace(skel, [sRow - 1, sCol + 0], endP, pts, ctr + 1, index);
+                   result = Algorithms.trace(skel, [sRow - 1, sCol + 0], endP, pts, ctr + 1, index);
                    return;
                end
                if (skel(sRow + 1, sCol + 0) ~= 0)
-                   result = Misc.trace(skel, [sRow + 1, sCol + 0], endP, pts, ctr + 1, index);
+                   result = Algorithms.trace(skel, [sRow + 1, sCol + 0], endP, pts, ctr + 1, index);
                    return;
                end
                if (skel(sRow - 1, sCol - 1) ~= 0)
-                   result = Misc.trace(skel, [sRow - 1, sCol - 1], endP, pts, ctr + 1, index);
+                   result = Algorithms.trace(skel, [sRow - 1, sCol - 1], endP, pts, ctr + 1, index);
                    return;
                end
                if (skel(sRow + 0, sCol - 1) ~= 0)
-                   result = Misc.trace(skel, [sRow + 0, sCol - 1], endP, pts, ctr + 1, index);
+                   result = Algorithms.trace(skel, [sRow + 0, sCol - 1], endP, pts, ctr + 1, index);
                    return;
                end
                if (skel(sRow + 1, sCol - 1) ~= 0)
-                   result = Misc.trace(skel, [sRow + 1, sCol - 1], endP, pts, ctr + 1, index);
+                   result = Algorithms.trace(skel, [sRow + 1, sCol - 1], endP, pts, ctr + 1, index);
                    return;
                end
 
