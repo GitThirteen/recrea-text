@@ -90,6 +90,7 @@ classdef main
                 [row2, col2] = find(endpoints, 1, 'last');
                 endpointsCurves(i,:) = [row1, col1, row2, col2];
                 
+                % Segmentation of remaining lines 
                 imgFF = Misc.traceLine(curve, [row1, col1], [row2, col2]);
                 
                 if (size(imgFF, 1) > 0)
@@ -116,6 +117,8 @@ classdef main
             disp("end part 2 at: " + datestr(now, 'HH:MM:SS.FFF'));
             
             imshow(skel);
+            
+            %extract all blobs in text image TODO!!!!
             
             usedBlobs = cell(numOfTextLabels, 1); % contains all used blobs;
             for l = 1:numOfTextLabels
