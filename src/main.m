@@ -1,7 +1,7 @@
 classdef main
     methods(Static)
         %% SEGMENTIER-BILD
-        function image = mainFunc(imageObj, imageText)
+        function mainFunc(imageObj, imageText)
             disp("start at: " + datestr(now, 'HH:MM:SS.FFF'));
             addpath('./helpers');
             addpath('../assets');
@@ -116,8 +116,8 @@ classdef main
             end
             disp("end part 2 at: " + datestr(now, 'HH:MM:SS.FFF'));
             
-            figure;
-            imshow(skel);
+            %figure;
+            %imshow(skel);
              
             [labeledTextSkel, numOfTextLabels] = bwlabel(skel);
             
@@ -178,8 +178,22 @@ classdef main
             
             disp("end part 3 at: " + datestr(now, 'HH:MM:SS.FFF'));
             
-            % make output image 
-            % ...
+            img = zeros(size(imageText));
+            for i = 1 : numOfTextLabels
+                blob = usedBlobs{i};
+                curve = labeledTextSkel == i;
+                
+                bbox = regionprops(curve, 'BoundingBox').BoundingBox;
+                xLeft = bbox(1);
+                yTop = bbox(2);
+                width = bbox(3);
+                height = bbox(4);
+                
+                img(xLeft:xLeft + width, yTop:yTop-height, :) = blob;
+            end
+            
+            finalImage = img;
+            imshow(finalImage);
             
           
             %% other things (?) 
