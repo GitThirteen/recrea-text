@@ -184,9 +184,9 @@ classdef main
                 blobOut = usedBlobs{i};
                 curveOut = labeledTextSkel == i;
                 
-                % xlim = lower x, upper x
-                % ylim = lower y, upper y
-                [xlim, ylim] = regionprops(curveOut, 'BoundingBox');
+                bbox = regionprops(curveOut, 'BoundingBox').BoundingBox;
+                colLeftTop = bbox(1);
+                rowLeftTop = bbox(2);
                 
                 numRowsBlob = size(blobOut,1);
                 numColsBlob = size(blobOut,2);
@@ -194,26 +194,8 @@ classdef main
                 img(rowLeftTop:rowLeftTop+numRowsBlob-1, colLeftTop:colLeftTop+numColsBlob-1, :) = blobOut;
             end
             
-            finalImage = img;
+            finalImage = uint8(img);
             imshow(finalImage);
-            
-          
-            %% other things (?) 
-            %firstEndPoint = find(endPoints, 1, 'first');
-            %[width, height, depth] = size(skel);
-            %fx = mod(firstEndPoint, width);
-            %fy = firstEndPoint / width;
-            
-            %skel = skel - branchPoints - endPoints;
-            
-            % REVERSE FLOOD-FILL
-            %skel = revFloodFill(skel, fx, fy, 1, 0.5);
-            %subplot(2,2,2);
-            %imshow(skel);
- 
-            %subplot(2,2,4);
-            %imshow(labeloverlay(image, skel, 'Transparency', 0, 'Colormap', 'hot'));
-            
         end   
      end
 end
