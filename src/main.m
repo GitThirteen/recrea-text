@@ -184,14 +184,17 @@ classdef main
                 blobOut = usedBlobs{i};
                 curveOut = labeledTextSkel == i;
                 
-                bbox = regionprops(curveOut, 'BoundingBox').BoundingBox;
-                colLeftTop = bbox(1);
-                rowLeftTop = bbox(2);
+               % bbox = regionprops(curveOut, 'BoundingBox').BoundingBox;
+%                 colLeftTop = bbox(1);
+%                 rowLeftTop = bbox(2);
                 
+                centroid = regionprops(curveOut, 'Centroid').Centroid;
+
                 numRowsBlob = size(blobOut,1);
                 numColsBlob = size(blobOut,2);
                 
-                img(rowLeftTop:rowLeftTop+numRowsBlob-1, colLeftTop:colLeftTop+numColsBlob-1, :) = blobOut;
+                %img(rowLeftTop:rowLeftTop+numRowsBlob-1, colLeftTop:colLeftTop+numColsBlob-1, :) = blobOut;
+                img(centroid(2)-numRowsBlob/2:centroid(2)+numRowsBlob/2-1, centroid(1)-numColsBlob/2:centroid(1)+numColsBlob/2-1, :) = blobOut;
             end
             
             finalImage = uint8(img);
