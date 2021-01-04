@@ -2,6 +2,7 @@ classdef main
     methods(Static)
         %% SEGMENTIER-BILD
         function image = mainFunc(imageObj, imageText)
+            disp("start at: " + datestr(now, 'HH:MM:SS.FFF'));
             addpath('./helpers');
             addpath('../assets');
 
@@ -12,7 +13,6 @@ classdef main
             %CREATE BINARY IMAGE
             mask = Filter.imageToBinary(imageAdjusted, 0.85);
             
-            %subplot(2,2,1);
             figure;
             imshow(mask);
            
@@ -50,7 +50,7 @@ classdef main
                 
                 deviationsBlobs(i,:) = Misc.curvature(skelblob, endpointsBlobs(i,:));
             end
-            
+            disp("end part 1 at: " + datestr(now, 'HH:MM:SS.FFF'));
 %% TEXTBILD 
           
             % CREATE BINARY IMAGE
@@ -68,10 +68,10 @@ classdef main
             %label single branches of skeleton
             [labeledTextSkel, numOfTextLabels] = bwlabel(skel);
             
-            colLabel = label2rgb(labeledTextSkel, 'jet', 'k');
+            %colLabel = label2rgb(labeledTextSkel, 'jet', 'k');
             
-            figure;
-            imshow(colLabel)
+            %figure;
+            %imshow(colLabel);
             
             %compute deviation of skeleton from straight line, that
             %connects both endpoints 
@@ -80,6 +80,7 @@ classdef main
             endpointsCurves = zeros(numOfTextLabels,4);
             areaCurves = zeros(numOfTextLabels);
             figure;
+            
             for i = 1 : numOfTextLabels
                 curve = labeledTextSkel == i;
                 areaCurves(i) = sum(sum(curve==1));
@@ -91,29 +92,30 @@ classdef main
                 
                 imgFF = Misc.traceLine(curve, [row1, col1], [row2, col2]);
                 
-                if (~isempty(imgFF))
-                    for j = 1 : length(imgFF)
-                    row = imgFF(j, 1);
-                    col = imgFF(j, 2);
-                    
-                    disp(j + " row: " + row);
-                    disp(j + " col: " + col);
-                    
-                   % skel = imdilate(skel(row, col), strel('cube', 9));
+                if (size(imgFF, 1) > 0)
+                    for j = 1 : size(imgFF, 1)
+                        row = imgFF(j, 1);
+                        col = imgFF(j, 2);
+
+                        mask = false(size(skel));
+                        mask(row, col) = 1;
+                        pt = imdilate(mask, strel('cube', 9));
+                        skel(pt) = 0;
                     end
                 end
                 
                 %imshow(skel);
-                
-                %imshow(imgFF);
-               
+
                 deviationsText(i,:) = Misc.curvature(curve, endpointsCurves(i,:));
                 bbox = regionprops(curve, 'BoundingBox').BoundingBox;
                 curve = imcrop(curve, bbox);
                 
-                subplot(2,numOfTextLabels, i)
-                imshow(curve)
+                %subplot(2,numOfTextLabels, i)
+                %imshow(curve);
             end
+            disp("end part 2 at: " + datestr(now, 'HH:MM:SS.FFF'));
+            
+            imshow(skel);
             
             usedBlobs = cell(numOfTextLabels, 1); % contains all used blobs;
             for l = 1:numOfTextLabels
@@ -141,9 +143,9 @@ classdef main
             
             usedBlobs{l} = scaledBlob;
             
-            subplot(2,numOfTextLabels, numOfTextLabels+l)
-            imshow(scaledBlob)
-            
+            %subplot(2,numOfTextLabels, numOfTextLabels+l)
+            %imshow(scaledBlob)
+            disp("end part 3 at: " + datestr(now, 'HH:MM:SS.FFF'));
             end
         
             
