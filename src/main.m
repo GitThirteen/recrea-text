@@ -27,7 +27,7 @@ classdef main
             blobs = cell(numOfLabels, 1); % contains all blobs
             %SAVE ENDPOINTS IN ARRAY
             endpointsBlobs = zeros(numOfLabels, 4);
-            areaBlobs = zeros(numOfLabels);
+            areaBlobs = zeros(numOfLabels,1);
             for i = 1 : numOfLabels
                 blob = labeledImage == i;
                 
@@ -78,7 +78,7 @@ classdef main
             % save endpoints and deviation values in arrays
             deviationsText = zeros(numOfTextLabels,5); 
             endpointsCurves = zeros(numOfTextLabels,4);
-            areaCurves = zeros(numOfTextLabels);
+            areaCurves = zeros(numOfTextLabels,1);
             figure;
             for i = 1 : numOfTextLabels
                 curve = labeledTextSkel == i;
@@ -92,7 +92,7 @@ classdef main
                 imgFF = Misc.traceLine(curve, [row1, col1], [row2, col2]);
                 
                 if (~isempty(imgFF))
-                    for j = 1 : length(imgFF)
+                    for j = 1 : size(imgFF,1)
                     row = imgFF(j, 1);
                     col = imgFF(j, 2);
                     
