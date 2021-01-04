@@ -48,7 +48,7 @@ classdef main
                 [r2, c2] = find(endpoints, 1, 'last');  % x, y of point B
                 endpointsBlobs(i,:) = [r1,c1,r2,c2];
                 
-                deviationsBlobs(i,:) = Misc.curvature(skelblob, endpointsBlobs(i,:));
+                deviationsBlobs(i,:) = Algorithms.curvature(skelblob, endpointsBlobs(i,:));
             end
             disp("end part 1 at: " + datestr(now, 'HH:MM:SS.FFF'));
 %% TEXTBILD 
@@ -90,14 +90,14 @@ classdef main
                 endpointsCurves(i,:) = [row1, col1, row2, col2];
                 
                 % compute curvature value 
-                deviationsText(i,:) = Misc.curvature(curve, endpointsCurves(i,:));
+                deviationsText(i,:) = Algorithms.curvature(curve, endpointsCurves(i,:));
                 
                 % split curve in case it has curvature value greater than the
                 % maximum curvature of the blobs (i.e. the curves with
                 % biggest curvatures) 
                 if deviationsText(i,1) > max(deviationsBlobs(:,1))
                 
-                    imgFF = Misc.traceLine(curve, [row1, col1], [row2, col2]);
+                    imgFF = Algorithms.traceLine(curve, [row1, col1], [row2, col2]);
 
                     if (size(imgFF, 1) > 0)
                         for j = 1 : size(imgFF, 1)
@@ -139,7 +139,7 @@ classdef main
             endpointsCurves(l,:) = [row1, col1, row2, col2];
 
             % compute curvature value 
-            deviationsText(l,:) = Misc.curvature(curve, endpointsCurves(l,:));
+            deviationsText(l,:) = Algorithms.curvature(curve, endpointsCurves(l,:));
             
 %             bbox = regionprops(curve, 'BoundingBox').BoundingBox;
 %             curve = imcrop(curve, bbox);
@@ -196,6 +196,6 @@ classdef main
             
             finalImage = uint8(img);
             imshow(finalImage);
-        end   
-     end
+            end   
+      end
 end
