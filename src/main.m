@@ -91,23 +91,23 @@ classdef main
                 
                 imgFF = Misc.traceLine(curve, [row1, col1], [row2, col2]);
                 
-                
-                for j = 1 : length(imgFF)
+                if (~isempty(imgFF))
+                    for j = 1 : length(imgFF)
                     row = imgFF(j, 1);
                     col = imgFF(j, 2);
                     
+                    disp(j + " row: " + row);
+                    disp(j + " col: " + col);
+                    
                    % skel = imdilate(skel(row, col), strel('cube', 9));
+                    end
                 end
                 
                 %imshow(skel);
                 
                 %imshow(imgFF);
-                
-               % imgFF = Misc.modFloodFill(curve, [row1, col1], [row2, col2], 0);
-               % figure;
-               % imshow(imgFF);
                
-                deviationsText(i,:) = Misc.curvature(curve, endpointsCurves(i,:));   
+                deviationsText(i,:) = Misc.curvature(curve, endpointsCurves(i,:));
                 bbox = regionprops(curve, 'BoundingBox').BoundingBox;
                 curve = imcrop(curve, bbox);
                 
