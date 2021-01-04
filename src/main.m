@@ -181,6 +181,7 @@ classdef main
             % create output
             img = zeros(size(imageText));
             for i = 1 : numOfTextLabels
+                inposition = zeros(size(imageText));
                 blobOut = usedBlobs{i};
                 curveOut = labeledTextSkel == i;
                 
@@ -191,10 +192,17 @@ classdef main
                 centroid = regionprops(curveOut, 'Centroid').Centroid;
 
                 numRowsBlob = size(blobOut,1);
+                firsthalfRows = round(numRowsBlob/2);
+                secondhalfRows = numRowsBlob - firsthalfRows;
                 numColsBlob = size(blobOut,2);
+                firsthalfCols = round(numColsBlob/2);
+                secondhalfCols = numColsBlob - firsthalfCols;
                 
                 %img(rowLeftTop:rowLeftTop+numRowsBlob-1, colLeftTop:colLeftTop+numColsBlob-1, :) = blobOut;
-                img(centroid(2)-numRowsBlob/2:centroid(2)+numRowsBlob/2-1, centroid(1)-numColsBlob/2:centroid(1)+numColsBlob/2-1, :) = blobOut;
+                inposition(centroid(2)-firsthalfRows : centroid(2)+secondhalfRows-1, centroid(1)-firsthalfCols : centroid(1)+secondhalfCols-1, :) = blobOut;
+               
+                img = img + inposition;
+                
             end
             
             finalImage = uint8(img);
