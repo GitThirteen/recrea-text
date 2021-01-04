@@ -141,8 +141,8 @@ classdef main
             % compute curvature value 
             deviationsText(l,:) = Misc.curvature(curve, endpointsCurves(l,:));
             
-            bbox = regionprops(curve, 'BoundingBox').BoundingBox;
-            curve = imcrop(curve, bbox);
+%             bbox = regionprops(curve, 'BoundingBox').BoundingBox;
+%             curve = imcrop(curve, bbox);
             
 %             subplot(2, numOfTextLabels, l)
 %             imshow(curve)
@@ -178,18 +178,22 @@ classdef main
             
             disp("end part 3 at: " + datestr(now, 'HH:MM:SS.FFF'));
             
+            % create output
             img = zeros(size(imageText));
             for i = 1 : numOfTextLabels
-                blob = usedBlobs{i};
-                curve = labeledTextSkel == i;
+                blobOut = usedBlobs{i};
+                curveOut = labeledTextSkel == i;
                 
-                bbox = regionprops(curve, 'BoundingBox').BoundingBox;
-                xLeft = bbox(1);
-                yTop = bbox(2);
-                width = bbox(3);
-                height = bbox(4);
+                bbox = regionprops(curveOut, 'BoundingBox').BoundingBox;
+                colLeftTop = bbox(1);
+                rowLeftTop = bbox(2);
+                %width = bbox(3);
+                %height = bbox(4);
                 
-                img(xLeft:xLeft + width, yTop:yTop-height, :) = blob;
+                numRowsBlob = size(blobOut,1);
+                numColsBlob = size(blobOut,2);
+                
+                img(rowLeftTop:rowLeftTop+numRowsBlob-1, colLeftTop:colLeftTop+numColsBlob-1, :) = blobOut;
             end
             
             finalImage = img;
