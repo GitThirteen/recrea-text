@@ -73,25 +73,28 @@ classdef main
             %figure;
             %imshow(colLabel);
             
-            %compute deviation of skeleton from straight line, that
+            %compute deviation of skeleton from the straight line that
             %connects both endpoints 
             % save endpoints and deviation values in arrays
             deviationsText = zeros(numOfTextLabels,5); 
             endpointsCurves = zeros(numOfTextLabels,4);
-            areaCurves = zeros(numOfTextLabels,1);
-            figure;
             
             for i = 1 : numOfTextLabels
+                % get curve i
                 curve = labeledTextSkel == i;
-                areaCurves(i) = sum(sum(curve==1));
 
+                % find endpoints of curve
                 endpoints = bwmorph(curve, 'endpoints');
                 [row1, col1] = find(endpoints, 1, 'first');
                 [row2, col2] = find(endpoints, 1, 'last');
                 endpointsCurves(i,:) = [row1, col1, row2, col2];
                 
+                % compute curvature value 
                 deviationsText(i,:) = Misc.curvature(curve, endpointsCurves(i,:));
                 
+                % split curve in case it has curvature value greater than the
+                % maximum curvature of the blobs (i.e. the curves with
+                % biggest curvatures) 
                 if deviationsText(i,1) > max(deviationsBlobs(:,1))
                 
                     imgFF = Misc.traceLine(curve, [row1, col1], [row2, col2]);
@@ -109,22 +112,41 @@ classdef main
                     end
                     
                 end
-                %imshow(skel);
-
                 
-%                 bbox = regionprops(curve, 'BoundingBox').BoundingBox;
-%                 curve = imcrop(curve, bbox);
-                
-                %subplot(2,numOfTextLabels, i)
-                %imshow(curve);
             end
             disp("end part 2 at: " + datestr(now, 'HH:MM:SS.FFF'));
             
             figure;
             imshow(skel);
+             
+            [labeledTextSkel, numOfTextLabels] = bwlabel(skel);
             
+            deviationsText = zeros(numOfTextLabels, 5);
+            endpointsCurves = zeros(numOfTextLabels,4);
+            areaCurves = zeros(numOfTextLabels,1);
             usedBlobs = cell(numOfTextLabels, 1); % contains all used blobs;
+            figure;
             for l = 1:numOfTextLabels
+                
+            % berechne nochmal deviation werte, weil zusätzliche kurven 
+            curve = labeledTextSkel == l;
+            areaCurves(l) = sum(sum(curve==1));
+
+            % find endpoints of curve
+            endpoints = bwmorph(curve, 'endpoints');
+            [row1, col1] = find(endpoints, 1, 'first');
+            [row2, col2] = find(endpoints, 1, 'last');
+            endpointsCurves(l,:) = [row1, col1, row2, col2];
+
+            % compute curvature value 
+            deviationsText(l,:) = Misc.curvature(curve, endpointsCurves(l,:));
+            
+            bbox = regionprops(curve, 'BoundingBox').BoundingBox;
+            curve = imcrop(curve, bbox);
+            
+%             subplot(2, numOfTextLabels, l)
+%             imshow(curve)
+            
             % suche Blob, der den (annähernd) gleichen deviation Wert aufweist
             % wie die Kurve des Branches im Text
             TextDev = deviationsText(l,1);
@@ -149,9 +171,11 @@ classdef main
             
             usedBlobs{l} = scaledBlob;
             
-            %subplot(2,numOfTextLabels, numOfTextLabels+l)
-            %imshow(scaledBlob)
+%             subplot(2,numOfTextLabels, numOfTextLabels+l)
+%             imshow(scaledBlob)
+            
             end
+            
             disp("end part 3 at: " + datestr(now, 'HH:MM:SS.FFF'));
             
             % make output image 
