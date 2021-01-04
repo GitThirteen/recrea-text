@@ -17,35 +17,31 @@ classdef Misc
                eRow = endP(1);
                eCol = endP(2);
                
-               if (skel(sRow, sCol) == 0)
-                   result = pts;
-                   return;
-               end
+               if (skel(sRow, sCol) ~= 0)
+                   if (sRow == eRow && sCol == eCol)
+                       result = pts;
+                       return;
+                   end
                
-               if (sRow == eRow && sCol == eCol)
-                   result = pts;
-                   return;
-               end
-               
-               if (mod(ctr, 200) == 0)
-                   index = index + 1;
-                   pts(index, 1) = sRow;
-                   pts(index, 2) = sCol;
-               end
-               
-               skel(sRow, sCol) = 0;
-                   
-               Misc.trace(skel, [sRow - 1, sCol + 1], endP, pts, ctr + 1, index);
-               Misc.trace(skel, [sRow + 0, sCol + 1], endP, pts, ctr + 1, index);
-               Misc.trace(skel, [sRow + 1, sCol + 1], endP, pts, ctr + 1, index);
-               Misc.trace(skel, [sRow - 1, sCol + 0], endP, pts, ctr + 1, index);
-               Misc.trace(skel, [sRow + 1, sCol + 0], endP, pts, ctr + 1, index);
-               Misc.trace(skel, [sRow - 1, sCol - 1], endP, pts, ctr + 1, index);
-               Misc.trace(skel, [sRow + 0, sCol - 1], endP, pts, ctr + 1, index);
-               Misc.trace(skel, [sRow + 1, sCol - 1], endP, pts, ctr + 1, index);
+                   if (mod(ctr, 200) == 0)
+                       index = index + 1;
+                       pts(index, 1) = sRow;
+                       pts(index, 2) = sCol;
+                   end
 
-               result = pts;
-               return; 
+                   skel(sRow, sCol) = 0;
+
+                   Misc.trace(skel, [sRow - 1, sCol + 1], endP, pts, ctr + 1, index);
+                   Misc.trace(skel, [sRow + 0, sCol + 1], endP, pts, ctr + 1, index);
+                   Misc.trace(skel, [sRow + 1, sCol + 1], endP, pts, ctr + 1, index);
+                   Misc.trace(skel, [sRow - 1, sCol + 0], endP, pts, ctr + 1, index);
+                   Misc.trace(skel, [sRow + 1, sCol + 0], endP, pts, ctr + 1, index);
+                   Misc.trace(skel, [sRow - 1, sCol - 1], endP, pts, ctr + 1, index);
+                   Misc.trace(skel, [sRow + 0, sCol - 1], endP, pts, ctr + 1, index);
+                   Misc.trace(skel, [sRow + 1, sCol - 1], endP, pts, ctr + 1, index);
+
+                   return;
+               end
            end
      
            
