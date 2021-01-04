@@ -8,7 +8,7 @@ classdef main
 
             %PRE-PROCESSING
             imageAdjusted = imadjust(imageObj, [0.3 0.7], []);
-            %imageWithGauss = Filter.gaussFilter(imageAdjusted, 1, 4);
+           % imageWithGauss = Filter.gaussFilter(imageAdjusted, 1, 4);
             
             %CREATE BINARY IMAGE
             mask = Filter.imageToBinary(imageAdjusted, 0.85);
@@ -90,31 +90,37 @@ classdef main
                 [row2, col2] = find(endpoints, 1, 'last');
                 endpointsCurves(i,:) = [row1, col1, row2, col2];
                 
-                imgFF = Misc.traceLine(curve, [row1, col1], [row2, col2]);
+                deviationsText(i,:) = Misc.curvature(curve, endpointsCurves(i,:));
                 
-                if (size(imgFF, 1) > 0)
-                    for j = 1 : size(imgFF, 1)
-                        row = imgFF(j, 1);
-                        col = imgFF(j, 2);
+                if deviationsText(i,1) > max(deviationsBlobs(:,1))
+                
+                    imgFF = Misc.traceLine(curve, [row1, col1], [row2, col2]);
 
-                        mask = false(size(skel));
-                        mask(row, col) = 1;
-                        pt = imdilate(mask, strel('cube', 9));
-                        skel(pt) = 0;
+                    if (size(imgFF, 1) > 0)
+                        for j = 1 : size(imgFF, 1)
+                            row = imgFF(j, 1);
+                            col = imgFF(j, 2);
+
+                            mask = false(size(skel));
+                            mask(row, col) = 1;
+                            pt = imdilate(mask, strel('cube', 9));
+                            skel(pt) = 0;
+                        end
                     end
+                    
                 end
-                
                 %imshow(skel);
 
-                deviationsText(i,:) = Misc.curvature(curve, endpointsCurves(i,:));
-                bbox = regionprops(curve, 'BoundingBox').BoundingBox;
-                curve = imcrop(curve, bbox);
+                
+%                 bbox = regionprops(curve, 'BoundingBox').BoundingBox;
+%                 curve = imcrop(curve, bbox);
                 
                 %subplot(2,numOfTextLabels, i)
                 %imshow(curve);
             end
             disp("end part 2 at: " + datestr(now, 'HH:MM:SS.FFF'));
             
+            figure;
             imshow(skel);
             
             usedBlobs = cell(numOfTextLabels, 1); % contains all used blobs;
@@ -145,9 +151,8 @@ classdef main
             
             %subplot(2,numOfTextLabels, numOfTextLabels+l)
             %imshow(scaledBlob)
-            disp("end part 3 at: " + datestr(now, 'HH:MM:SS.FFF'));
             end
-        
+            disp("end part 3 at: " + datestr(now, 'HH:MM:SS.FFF'));
             
             % make output image 
             % ...

@@ -22,7 +22,7 @@ classdef Misc
                    return;
                end
 
-               if (mod(ctr, 50) == 0)
+               if (mod(ctr, 100) == 0)
                    index = index + 1;
                    pts(index, 1) = sRow;
                    pts(index, 2) = sCol;
