@@ -90,15 +90,10 @@ classdef main
                 [row2, col2] = find(endpoints, 1, 'last');
                 endpointsCurves(i,:) = [row1, col1, row2, col2];
                 
-<<<<<<< HEAD
                 % Segmentation of remaining lines 
-                imgFF = Misc.traceLine(curve, [row1, col1], [row2, col2]);
-=======
                 deviationsText(i,:) = Misc.curvature(curve, endpointsCurves(i,:));
                 
-                if deviationsText(i,1) > max(deviationsBlobs(:,1))
->>>>>>> 79a909773abc70a89698bddd66c97af2ba7e7a33
-                
+                if deviationsText(i,1) > max(deviationsBlobs(:,1))            
                     imgFF = Misc.traceLine(curve, [row1, col1], [row2, col2]);
 
                     if (size(imgFF, 1) > 0)
@@ -112,7 +107,6 @@ classdef main
                             skel(pt) = 0;
                         end
                     end
-                    
                 end
                 %imshow(skel);
 
