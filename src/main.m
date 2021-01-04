@@ -8,7 +8,14 @@ classdef main
 
             %PRE-PROCESSING
             imageAdjusted = imadjust(imageObj, [0.3 0.7], []);
-            imageWithGauss = Filter.gaussFilter(imageAdjusted, 2, 5);
+            
+            figure;
+            imshow(imageAdjusted)
+            
+            imageWithGauss = Filter.gaussFilter(imageAdjusted, 0.5, 5);
+            
+            figure;
+            imshow(imageWithGauss)
             
             %CREATE BINARY IMAGE
             mask = Filter.imageToBinary(imageWithGauss, 0.85);

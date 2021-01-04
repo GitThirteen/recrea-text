@@ -46,7 +46,7 @@ classdef Filter
             end
             
             % Convert the return-image back to integer values.
-            retImage = uint8(retImage);
+            %retImage = uint8(retImage);
         end
     end
 end
