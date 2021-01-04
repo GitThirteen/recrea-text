@@ -98,11 +98,15 @@ classdef Misc
                 devCol = (endpoints(2) + endpoints(4))/2 - (cMiddle(1));
                 devRow = (endpoints(1) + endpoints(3))/2 - (rMiddle(1));
           
-                % 1st entry = distance
+                % 1st entry = relative distance
                 % 2nd & 3rd entry = vector from middle of curve to middle
                 % of line
                 % 4th & 5th entry = middle point of curve
-                dev = [norm([devRow, devCol]), devRow, devCol, rMiddle(1), cMiddle(1)];
+                distEndp = norm(endpoints(1:2)-endpoints(3:4));
+                distToLine = norm([devRow, devCol]);
+                relDist = distToLine/distEndp;
+                
+                dev = [relDist, devRow, devCol, rMiddle(1), cMiddle(1)];
                 
                 return;
                
