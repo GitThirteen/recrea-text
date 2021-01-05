@@ -65,7 +65,8 @@ classdef main
             %imshow(binaryText);
             
             % CREATE SKELETON -> need SKELETONIZATION algorithm
-            skel = bwskel(binaryText, 'MinBranchLength', 40); % removes short sidebranches
+            %skel = bwskel(binaryText, 'MinBranchLength', 40); % removes short sidebranches
+            skel = Skeletonization.skeleton(binaryText);
             
             % remove branchpoints
             branchPoints = bwmorph(skel, 'branchpoints');
@@ -81,7 +82,7 @@ classdef main
             %imshow(colLabel);
             
             %compute deviation of skeleton from the straight line that
-            %connects both endpoints 
+            %connects boths endpoints 
             % save endpoints and deviation values in arrays
             deviationsText = zeros(numOfTextLabels,5); 
             endpointsCurves = zeros(numOfTextLabels,4);
