@@ -9,13 +9,13 @@ classdef main
             %PRE-PROCESSING
             imageAdjusted = imadjust(imageObj, [0.3 0.7], []);
             
-            figure;
-            imshow(imageAdjusted)
+            %figure;
+            %imshow(imageAdjusted)
             
-            imageWithGauss = Filter.gaussFilter(imageAdjusted, 0.5, 5);
+            imageWithGauss = Filter.gaussFilter(imageObj, 3, 5);
             
             figure;
-            imshow(imageWithGauss)
+            imshow(imageWithGauss);
             
             %CREATE BINARY IMAGE
             mask = Filter.imageToBinary(imageWithGauss, 0.85);
@@ -28,7 +28,7 @@ classdef main
             
             %deviation array containing distance value, deviationRpw and
             %deviationColumn
-            deviationsBlobs = zeros(numOfLabels,5);  
+            deviationsBlobs = zeros(numOfLabels, 5);  
             
             %SAVE BLOBS IN CELL ARRAY
             blobs = cell(numOfLabels, 1); % contains all blobs
