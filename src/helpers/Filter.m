@@ -38,10 +38,13 @@ classdef Filter
             workImage = im2double(workImage);
             
             % Loop.
+            
             for i = 1 : size(workImage, 1) - n
                 for j = 1 : size(workImage, 2) - m
-                    temp = workImage(i:(i + n), j:(j + m)) .* kernel;
-                    retImage(i,j) = sum(temp(:));
+                    for k = 1 : size(workImage, 3)
+                        temp = workImage(i:(i + n), j:(j + m), k) .* kernel;
+                        retImage(i,j,k) = sum(temp(:));
+                    end
                 end
             end
             
