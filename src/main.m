@@ -12,7 +12,7 @@ classdef main
             %figure;
             %imshow(imageAdjusted)
             
-            imageWithGauss = Filter.gaussFilter(imageObj, 3, 5);
+            imageWithGauss = Filter.gaussFilter(imageAdjusted, 1, 3);
             
             figure;
             imshow(imageWithGauss);
@@ -212,8 +212,18 @@ classdef main
                 
             end
             
+            figure;
+            subplot(2, 2, 1);
+            imshow(imageObj);
+            
+            subplot(2, 2, 2);
+            imshow(imageText);
+            
+            subplot(2, 2, 3);
             finalImage = uint8(img);
             imshow(finalImage);
+            
+            subplot(2, 2, 4);
             end   
       end
 end

@@ -17,7 +17,7 @@ classdef Filter
             end
             
             openObj = strel('diamond', 3);
-            closeObj = strel('diamond', 30);
+            closeObj = strel('diamond', 5);
             binaryImage = imopen(binarized, openObj);
             binaryImage = imclose(binaryImage, closeObj);
         end
