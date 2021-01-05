@@ -15,7 +15,7 @@ classdef main
             imageWithGauss = Filter.gaussFilter(imageAdjusted, 0.5, 5);
             
             figure;
-            imshow(imageWithGauss)
+            imshow(imageWithGauss);
             
             %CREATE BINARY IMAGE
             mask = Filter.imageToBinary(imageWithGauss, 0.85);
