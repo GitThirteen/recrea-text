@@ -35,6 +35,7 @@ classdef Filter
             % Initialize the return image.
             retImage = zeros(size(image));
             workImage = padarray(image,[radius radius]);
+            workImage = im2double(workImage);
             
             % Loop.
             for i = 1 : size(workImage, 1) - n
@@ -45,7 +46,7 @@ classdef Filter
             end
             
             % Convert the return-image back to integer values.
-            retImage = uint8(retImage);
+            %retImage = uint8(retImage);
         end
     end
 end

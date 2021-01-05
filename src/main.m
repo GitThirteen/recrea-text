@@ -1,18 +1,25 @@
 classdef main
     methods(Static)
         %% SEGMENTIER-BILD
-        function image = mainFunc(imageObj, imageText)
+        function mainFunc(imageObj, imageText)
+            disp("start at: " + datestr(now, 'HH:MM:SS.FFF'));
             addpath('./helpers');
             addpath('../assets');
 
             %PRE-PROCESSING
             imageAdjusted = imadjust(imageObj, [0.3 0.7], []);
-            %imageWithGauss = Filter.gaussFilter(imageAdjusted, 1, 4);
+            
+            figure;
+            imshow(imageAdjusted)
+            
+            imageWithGauss = Filter.gaussFilter(imageAdjusted, 0.5, 5);
+            
+            figure;
+            imshow(imageWithGauss)
             
             %CREATE BINARY IMAGE
-            mask = Filter.imageToBinary(imageAdjusted, 0.85);
+            mask = Filter.imageToBinary(imageWithGauss, 0.85);
             
-            %subplot(2,2,1);
             figure;
             imshow(mask);
            
@@ -48,9 +55,9 @@ classdef main
                 [r2, c2] = find(endpoints, 1, 'last');  % x, y of point B
                 endpointsBlobs(i,:) = [r1,c1,r2,c2];
                 
-                deviationsBlobs(i,:) = Misc.curvature(skelblob, endpointsBlobs(i,:));
+                deviationsBlobs(i,:) = Algorithms.curvature(skelblob, endpointsBlobs(i,:));
             end
-            
+            disp("end part 1 at: " + datestr(now, 'HH:MM:SS.FFF'));
 %% TEXTBILD 
           
             % CREATE BINARY IMAGE
@@ -68,55 +75,85 @@ classdef main
             %label single branches of skeleton
             [labeledTextSkel, numOfTextLabels] = bwlabel(skel);
             
-            colLabel = label2rgb(labeledTextSkel, 'jet', 'k');
+            %colLabel = label2rgb(labeledTextSkel, 'jet', 'k');
             
-            figure;
-            imshow(colLabel)
+            %figure;
+            %imshow(colLabel);
             
-            %compute deviation of skeleton from straight line, that
+            %compute deviation of skeleton from the straight line that
             %connects both endpoints 
             % save endpoints and deviation values in arrays
             deviationsText = zeros(numOfTextLabels,5); 
             endpointsCurves = zeros(numOfTextLabels,4);
-            areaCurves = zeros(numOfTextLabels,1);
-            figure;
+            
             for i = 1 : numOfTextLabels
+                % get curve i
                 curve = labeledTextSkel == i;
-                areaCurves(i) = sum(sum(curve==1));
 
+                % find endpoints of curve
                 endpoints = bwmorph(curve, 'endpoints');
                 [row1, col1] = find(endpoints, 1, 'first');
                 [row2, col2] = find(endpoints, 1, 'last');
                 endpointsCurves(i,:) = [row1, col1, row2, col2];
                 
-                imgFF = Misc.traceLine(curve, [row1, col1], [row2, col2]);
+                % compute curvature value 
+                deviationsText(i,:) = Algorithms.curvature(curve, endpointsCurves(i,:));
                 
-                if (~isempty(imgFF))
-                    for j = 1 : size(imgFF,1)
-                    row = imgFF(j, 1);
-                    col = imgFF(j, 2);
-                    
-                    disp(j + " row: " + row);
-                    disp(j + " col: " + col);
-                    
-                   % skel = imdilate(skel(row, col), strel('cube', 9));
+                % split curve in case it has curvature value greater than the
+                % maximum curvature of the blobs (i.e. the curves with
+                % biggest curvatures) 
+                if deviationsText(i,1) > max(deviationsBlobs(:,1))
+                
+                    imgFF = Algorithms.traceLine(curve, [row1, col1], [row2, col2]);
+
+                    if (size(imgFF, 1) > 0)
+                        for j = 1 : size(imgFF, 1)
+                            row = imgFF(j, 1);
+                            col = imgFF(j, 2);
+
+                            mask = false(size(skel));
+                            mask(row, col) = 1;
+                            pt = imdilate(mask, strel('cube', 9));
+                            skel(pt) = 0;
+                        end
                     end
+                    
                 end
                 
-                %imshow(skel);
-                
-                %imshow(imgFF);
-               
-                deviationsText(i,:) = Misc.curvature(curve, endpointsCurves(i,:));
-                bbox = regionprops(curve, 'BoundingBox').BoundingBox;
-                curve = imcrop(curve, bbox);
-                
-                subplot(2,numOfTextLabels, i)
-                imshow(curve)
             end
+            disp("end part 2 at: " + datestr(now, 'HH:MM:SS.FFF'));
             
+            %figure;
+            %imshow(skel);
+             
+            [labeledTextSkel, numOfTextLabels] = bwlabel(skel);
+            
+            deviationsText = zeros(numOfTextLabels, 5);
+            endpointsCurves = zeros(numOfTextLabels,4);
+            areaCurves = zeros(numOfTextLabels,1);
             usedBlobs = cell(numOfTextLabels, 1); % contains all used blobs;
+            figure;
             for l = 1:numOfTextLabels
+                
+            % berechne nochmal deviation werte, weil zusätzliche kurven 
+            curve = labeledTextSkel == l;
+            areaCurves(l) = sum(sum(curve==1));
+
+            % find endpoints of curve
+            endpoints = bwmorph(curve, 'endpoints');
+            [row1, col1] = find(endpoints, 1, 'first');
+            [row2, col2] = find(endpoints, 1, 'last');
+            endpointsCurves(l,:) = [row1, col1, row2, col2];
+
+            % compute curvature value 
+            deviationsText(l,:) = Algorithms.curvature(curve, endpointsCurves(l,:));
+            
+%             bbox = regionprops(curve, 'BoundingBox').BoundingBox;
+%             curve = imcrop(curve, bbox);
+            
+%             subplot(2, numOfTextLabels, l)
+%             imshow(curve)
+            
             % suche Blob, der den (annähernd) gleichen deviation Wert aufweist
             % wie die Kurve des Branches im Text
             TextDev = deviationsText(l,1);
@@ -141,32 +178,42 @@ classdef main
             
             usedBlobs{l} = scaledBlob;
             
-            subplot(2,numOfTextLabels, numOfTextLabels+l)
-            imshow(scaledBlob)
+%             subplot(2,numOfTextLabels, numOfTextLabels+l)
+%             imshow(scaledBlob)
             
             end
-        
             
-            % make output image 
-            % ...
+            disp("end part 3 at: " + datestr(now, 'HH:MM:SS.FFF'));
             
-          
-            %% other things (?) 
-            %firstEndPoint = find(endPoints, 1, 'first');
-            %[width, height, depth] = size(skel);
-            %fx = mod(firstEndPoint, width);
-            %fy = firstEndPoint / width;
+            % create output
+            img = zeros(size(imageText));
+            for i = 1 : numOfTextLabels
+                inposition = zeros(size(imageText));
+                blobOut = usedBlobs{i};
+                curveOut = labeledTextSkel == i;
+                
+               % bbox = regionprops(curveOut, 'BoundingBox').BoundingBox;
+%                 colLeftTop = bbox(1);
+%                 rowLeftTop = bbox(2);
+                
+                centroid = regionprops(curveOut, 'Centroid').Centroid;
+
+                numRowsBlob = size(blobOut,1);
+                firsthalfRows = round(numRowsBlob/2);
+                secondhalfRows = numRowsBlob - firsthalfRows;
+                numColsBlob = size(blobOut,2);
+                firsthalfCols = round(numColsBlob/2);
+                secondhalfCols = numColsBlob - firsthalfCols;
+                
+                %img(rowLeftTop:rowLeftTop+numRowsBlob-1, colLeftTop:colLeftTop+numColsBlob-1, :) = blobOut;
+                inposition(centroid(2)-firsthalfRows : centroid(2)+secondhalfRows-1, centroid(1)-firsthalfCols : centroid(1)+secondhalfCols-1, :) = blobOut;
+               
+                img = img + inposition;
+                
+            end
             
-            %skel = skel - branchPoints - endPoints;
-            
-            % REVERSE FLOOD-FILL
-            %skel = revFloodFill(skel, fx, fy, 1, 0.5);
-            %subplot(2,2,2);
-            %imshow(skel);
- 
-            %subplot(2,2,4);
-            %imshow(labeloverlay(image, skel, 'Transparency', 0, 'Colormap', 'hot'));
-            
-        end   
-     end
+            finalImage = uint8(img);
+            imshow(finalImage);
+            end   
+      end
 end
