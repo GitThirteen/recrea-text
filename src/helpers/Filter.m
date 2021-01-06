@@ -3,7 +3,7 @@ classdef Filter
     %   Detailed explanation goes here
     
     methods(Static)
-        % Returns a black & while image depending on the set threshold
+        % Returns a black & white image depending on the set threshold
         function binaryImage = imageToBinary(image, threshold)
             grayImage = rgb2gray(image);
             
@@ -117,6 +117,34 @@ classdef Filter
                 end
             end
         end
+        
+        function dilatedImage = dilate(binaryImage, structuringElement)
+            
+            se = structuringElement;
+            [p, q] = size(se);
+            [m, n] = size(binaryImage);
+            dil = zeros(m,n); 
+            
+            for i = 1:m
+                for j = 1:n
+                    if(binaryImage(i,j) == 1)
+                        for k = 1:p
+                for l = 1:q
+                    if(se(k,l) == 1)
+                        c = i+k;
+                        d = j+l;
+                        dil(c,d) = 1;
+                    end
+                end
+                        end
+                    end
+                end
+            end
+            
+            dilatedImage = dil;    
+                
+        end
+            
     end
 end
 
