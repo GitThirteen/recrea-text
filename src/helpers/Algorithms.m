@@ -12,7 +12,7 @@ classdef Algorithms
                    result = Algorithms.trace(skel, startP, endP, zeros(100000,2), 0, 0, 100);
                elseif (strcmp(mode, "centerpt"))
                    whitePx = sum(skel(:));
-                   result = Algorithms.trace(skel, startP, endP, zeros(100000,2), 0, 0, whitePx * 0.5);
+                   result = Algorithms.trace(skel, startP, endP, zeros(100000,2), 0, 0, round(whitePx * 0.5));
                    result = result(1, :);
                else
                    error("Unrecognizable input for parameter <mode>. Expected 'default' or 'centerpt', found '" + mode + "' instead.");
@@ -24,7 +24,7 @@ classdef Algorithms
                sCol = startP(2);
                eRow = endP(1);
                eCol = endP(2);
-               
+
                if (sRow == eRow && sCol == eCol)
                    result = pts(1:index, :);
                    return;
