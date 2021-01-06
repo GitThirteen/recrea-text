@@ -1,10 +1,12 @@
 classdef Transform
-
+    
     % functions for transforming image
     % transformFactors: finding angle for rotation and scaling factor for
     %                   scale, based comparing values of 2 images
     % rotate: performs counterclockwise rotation of an image
     % scale: performs scaling of an image
+    %
+    % author: Silke
     
     methods(Static)     
 %% transformFactors
@@ -68,11 +70,15 @@ classdef Transform
           % blob = the segmented object (blob) to be rotated
           % angle = the angle (in radians), which the blob should be 
           %         rotated counterclockwise
+          % idea: for each pixel in the resulting rotated image interpolate 
+          % the original image with nearest neighbor interpolation
            function imRotated = rotate(blob, angle)
               
-               %rotation matrix
-               matRotate = [cos(angle), -sin(angle);
-                             sin(angle), cos(angle)];
+               % transpose rotation matrix, because performing the rotation
+               % "backwards", multiplying the matrix with the new
+               % coordinates
+               matRotate = [cos(angle), sin(angle);
+                             -sin(angle), cos(angle)];
                
                [nrows, ncols] = size(blob, 1:2);
                
@@ -89,26 +95,26 @@ classdef Transform
                midRow = round(nrows/2);
                midCol = round(ncols/2); 
 
-               % create coordinates
+               % create new coordinates
                [rowMat, colMat]  = meshgrid(1:maxsize, 1:maxsize);
        
-               % create column vector out of matrix
-               rowArr = rowMat(:);
-               colArr = colMat(:);
-               coords = [rowArr-middle,colArr-middle]; % maxsize x 2
+               % create column vectors out of matrix and then transpose to
+               % get row vectors
+               rowArr = transpose(rowMat(:));
+               colArr = transpose(colMat(:));
+               coords = [rowArr-middle;colArr-middle]; % size: 2 x maxsize
                
-               % rotate (multiply from the right, because coordinates are
-               % row-wise instead of column-wise)
-               rotatedcoords = coords*matRotate;
-               rotatedcoords(:,1) = round(rotatedcoords(:,1)+midRow);
-               rotatedcoords(:,2) = round(rotatedcoords(:,2)+midCol);
-               coords = [rowArr, colArr];
-                
-               for l = 1:size(rotatedcoords,1)
-                   a = rotatedcoords(l,1);
-                   b = rotatedcoords(l,2);
+               % rotate 
+               rotatedcoords = matRotate*coords;
+               rotatedcoords(1,:) = round(rotatedcoords(1,:)+midRow);
+               rotatedcoords(2,:) = round(rotatedcoords(2,:)+midCol);
+               coords = [rowArr; colArr];
+               
+               for l = 1:size(rotatedcoords,2)
+                   a = rotatedcoords(1,l);
+                   b = rotatedcoords(2,l);
                    if a>0 && b>0 && a<=nrows && b<=ncols          
-                     imRotated(coords(l,1), coords(l,2),:)=blob(a,b,:);
+                     imRotated(coords(1,l), coords(2,l),:)=blob(a,b,:);
                    end
                end  
         
