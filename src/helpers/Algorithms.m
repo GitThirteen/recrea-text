@@ -30,7 +30,7 @@ classdef Algorithms
                    return;
                end
 
-               if (mod(ctr, threshold) == 0)
+               if (mod(ctr, threshold) == 0 && ctr ~= 0)
                    index = index + 1;
                    pts(index, 1) = sRow;
                    pts(index, 2) = sCol;
