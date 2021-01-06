@@ -66,8 +66,9 @@ classdef Filter
             filteredImage = uint8(retImage);
         end
         
+        %region growing
         function regionMask = regionGrowing(image, x, y, threshold)
-            regionMask = regionGrowingFromGrayscale(rgb2gray(image), x, y, threshold);
+            regionMask = Filter.regionGrowingFromGrayscale(rgb2gray(image), x, y, threshold);
         end
         
         function regionMask = regionGrowingFromGrayscale(grayscaleImage, x, y, threshold)
@@ -93,8 +94,8 @@ classdef Filter
         end
         
         function [regionMap, regionsNr] = regionLabeling(image, treshold)
-            binaryImage = imageToBinary(image, treshold);
-            [regionMap, regionsNr] = regionLabelingFromBinary(binaryImage);
+            binaryImage = Filter.imageToBinary(image, treshold);
+            [regionMap, regionsNr] = Filter.regionLabelingFromBinary(binaryImage);
         end
         
         function [regionMap, regionsNr] = regionLabelingFromBinary(binaryImage)
@@ -109,7 +110,7 @@ classdef Filter
                         % If a pixel is in the foreground, but not part of
                         % a region yet, then it becomes the origin of a new
                         % region.
-                        tempMask = regionGrowingFromGrayscale(binaryImage, i, j, 0.5);
+                        tempMask = Filter.regionGrowingFromGrayscale(binaryImage, i, j, 0.5);
                         regionsNr = regionsNr + 1;
                         regionMap = regionMap + (tempMask * regionsNr);
                     end
