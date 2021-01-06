@@ -56,7 +56,6 @@ classdef Filter
             workImage = padarray(img,[radius radius]);
 
             % Loop.
-            
             for i = 1 : size(workImage, 1) - n
                 for j = 1 : size(workImage, 2) - m
                     temp = workImage(i:i + n, j:j + m) .* kernel;
@@ -65,6 +64,57 @@ classdef Filter
             end
             
             filteredImage = uint8(retImage);
+        end
+        
+        function regionMask = regionGrowing(image, x, y, threshold)
+            regionMask = regionGrowingFromGrayscale(rgb2gray(image), x, y, threshold);
+        end
+        
+        function regionMask = regionGrowingFromGrayscale(grayscaleImage, x, y, threshold)
+            % Prime the region mask.
+            [width, height] = size(grayscaleImage);
+            regionMask = zeros(width, height);
+            oldMask = zeros(width, height);
+            diamondSE = strel('diamond', 1);
+            
+            % Set the seed point and dilation strel.
+            regionMask(x, y) = 1;
+            
+            % Iterate until the region stops growing.
+            while (sum(regionMask(:)) ~= sum(oldMask(:)))
+                oldMask = regionMask;
+                segValues = image(regionMask);
+                meanSegValue = mean(segValues);
+                dilMask = imdilate(regionMask, diamondSE);
+                nVal = dilMask - regionMask;
+                nValImage = grayscaleImage(nVal);
+                regionMask(nValImage > meanSegValue - threshold & nValImage < meanSegValue + threshold) = 1;
+            end
+        end
+        
+        function [regionMap, regionsNr] = regionLabeling(image, treshold)
+            binaryImage = imageToBinary(image, treshold);
+            [regionMap, regionsNr] = regionLabelingFromBinary(binaryImage);
+        end
+        
+        function [regionMap, regionsNr] = regionLabelingFromBinary(binaryImage)
+            % Create a binary image the region map.
+            regionMap = zeros(size(binaryImage));
+            regionsNr = 0;
+            
+            % Iterate over binary image.
+            for i = 1 : size(binaryImage, 1)
+                for j = 1 : size(binaryImage, 1)
+                    if binaryImage(i, j) == 1 | regionMap(i, j) == 0
+                        % If a pixel is in the foreground, but not part of
+                        % a region yet, then it becomes the origin of a new
+                        % region.
+                        tempMask = regionGrowingFromGrayscale(binaryImage, i, j, 0.5);
+                        regionsNr = regionsNr + 1;
+                        regionMap = regionMap + (tempMask * regionsNr);
+                    end
+                end
+            end
         end
     end
 end
