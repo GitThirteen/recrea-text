@@ -84,12 +84,26 @@ classdef main
             skel = bwskel(binaryText, 'MinBranchLength', 40); % removes short sidebranches
             %skel = Skeletonization.skeleton(binaryText);
             
-            branchPoints = bwmorph(skel, 'branchpoints');
-            branchPoints = imdilate(branchPoints, strel('cube', 9));
-            skel(branchPoints) = 0;
-     
-            figure;
-            imshow(skel);
+            % remove branchpoints
+            branchPoints = zeros(size(skel));
+            branchPointArray = Algorithms.findBranchpoints(skel);
+            
+            if (size(branchPointArray, 1) > 0)
+                for i = 1 : size(branchPointArray, 1)
+                    row = branchPointArray(i, 1);
+                    col = branchPointArray(i, 2);
+
+                    branchPoints(row, col) = 1;
+                end
+            end
+            
+            bp = imdilate(branchPoints, strel('cube', 9));
+            %figure;
+            %imshow(bp);
+            skel(bp == 1) = 0;
+
+            %figure;
+            %imshow(skel);
             
     % SEGMENT IMAGE (Region Growing) & LABEL IMAGE
             [labeledTextSkel, numOfTextLabels] = bwlabel(skel);
@@ -221,11 +235,14 @@ classdef main
                 
                 inposition(centroid(2)-firsthalfRows : centroid(2)+secondhalfRows-1, centroid(1)-firsthalfCols : centroid(1)+secondhalfCols-1, :) = blobOut;
                
-                % add temporary image to output image
+                 % add temporary image to output image
                 % (background pixels with value 0 don't affect already
                 % existing nonzero pixels -> no overlap of
                 % blob-backgrounds)
-                img = img + inposition;
+                % in case part of the positioned blob-image lies outside
+                % the image size, inposition is cropped to the original
+                % size before adding
+                img = img + inposition(1:size(img,1), 1:size(img,2),:);
              
             end
             
@@ -269,6 +286,7 @@ classdef main
             timestamp = datestr(now, 'HH:MM:SS');
             
             if (strcmp(part, "start"))
+                disp("----------------");
                 disp("Application started at: " + timestamp);
             elseif (strcmp(part, "end"))
                 diff = (datenum(timestamp) - datenum(oldTimestamp)) * 24 * 60 * 60;
