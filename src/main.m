@@ -19,14 +19,14 @@ classdef main
             imshow(imageWithGauss);
             
             %CREATE BINARY IMAGE
-            %mask = Filter.imageToBinary(imageWithGauss, 0.85);
+            mask = Filter.imageToBinary(imageWithGauss, 0.85);
             
             %figure;
             %imshow(mask);
            
             %CREATE LABELED IMAGE -> need REGION GROWING instead
-            %[labeledImage, numOfLabels] = bwlabel(mask);
-            [labeledImage, numOfLabels] = Filter.regionLabeling(imageWithGauss, 0.85);
+            [labeledImage, numOfLabels] = bwlabel(mask);
+            %[labeledImage, numOfLabels] = Filter.regionLabeling(imageWithGauss, 0.85);
             
             figure;
             imshow(labeledImage)
