@@ -110,7 +110,7 @@ classdef Filter
                         % If a pixel is in the foreground, but not part of
                         % a region yet, then it becomes the origin of a new
                         % region.
-                        tempMask = Filter.regionGrowingFromGrayscale(binaryImage, i, j, 0.5);
+                        tempMask = Filter.regionGrowing(binaryImage, i, j, 0.5);
                         regionsNr = regionsNr + 1;
                         regionMap = regionMap + (tempMask * regionsNr);
                     end
