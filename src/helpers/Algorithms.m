@@ -13,6 +13,12 @@ classdef Algorithms
                elseif (strcmp(mode, "centerpt"))
                    whitePx = sum(skel(:));
                    result = Algorithms.trace(skel, startP, endP, zeros(100000,2), 0, 0, round(whitePx * 0.5));
+                   
+                   if (isempty(result))
+                       result = startP;
+                       return;
+                   end
+                   
                    result = result(1, :);
                else
                    error("Unrecognizable input for parameter <mode>. Expected 'default' or 'centerpt', found '" + mode + "' instead.");
