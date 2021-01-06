@@ -240,8 +240,7 @@ classdef main
             for x = 1 : size(finalImageText, 1)
                 for y = 1 : size(finalImageText, 2)
                     if (tempImage(x, y) ~= 0)
-                        finalImageText(x, y) = img(x, y);
-                        disp("a");
+                        finalImageText(x, y, :) = img(x, y, :);
                     end
                 end
             end
