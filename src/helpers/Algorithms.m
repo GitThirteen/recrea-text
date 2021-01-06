@@ -102,6 +102,8 @@ classdef Algorithms
                 endPt = endpoints(3:4);
                 middlePix = Algorithms.traceLine(skelblob,startPt, endPt,'centerpt');
 
+                rMiddle = middlePix(1);
+                cMiddle = middlePix(2);
                 %[rowsLastHalfPixels, colsLastHalfPixels] = find(skelblob, numPixelsInBlob/2 , 'last');
                 %[rMiddle, cMiddle] = find(middlePix==1);
                 
