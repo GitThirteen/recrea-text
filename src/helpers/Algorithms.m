@@ -129,7 +129,45 @@ classdef Algorithms
                 dev = [relDist, devRow, devCol, rMiddle, cMiddle];
                 
                 return;
+           end
+           
+           function branchpoints = findBranchpoints(skel)
+               branchpoints = zeros(10000, 2);
+               index = 1;
                
+               for x = 1 : size(skel, 1)
+                   for y = 1 : size(skel, 2)
+                       if (skel(x, y) == 1)
+                           if (Algorithms.isBranchpoint(skel, x, y))
+                               branchpoints(index, 1) = x;
+                               branchpoints(index, 2) = y;
+
+                               index = index + 1;
+                           end
+                       end
+                   end
+               end
+               
+               branchpoints = branchpoints(1:index - 1, :);
+           end
+           
+           function result = isBranchpoint(skel, x, y)
+               amount = 0;
+               
+               for i = -1 : 1
+                   for j = - 1 : 1
+                       if ((i ~= 0 && j ~= 0) && skel(x + i, y + j) == 1)
+                           amount = amount + 1;
+                       end
+                       
+                       if (amount >= 4)
+                           result = true;
+                           return;
+                       end
+                   end
+               end
+               
+               result = false;
            end
     end
 end
