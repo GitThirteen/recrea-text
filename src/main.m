@@ -2,9 +2,10 @@ classdef main
     methods(Static)
         %% SEGMENTIER-BILD
         function mainFunc(imageObj, imageText)
-            disp("start at: " + datestr(now, 'HH:MM:SS.FFF'));
             addpath('./helpers');
             addpath('../assets');
+            
+            appTStart = main.trackTime(NaN, "start");
 
             %PRE-PROCESSING
             imageAdjusted = imadjust(imageObj, [0.3 0.7], []);
@@ -58,7 +59,8 @@ classdef main
                 deviationsBlobs(i,:) = Algorithms.curvature(skelblob, endpointsBlobs(i,:));
                 
             end
-            disp("end part 1 at: " + datestr(now, 'HH:MM:SS.FFF'));
+            
+            part1TEnd = main.trackTime(appTStart, 1);
 %% TEXTBILD 
           
             % CREATE BINARY IMAGE
@@ -121,12 +123,11 @@ classdef main
                             pt = imdilate(mask, strel('cube', 9));
                             skel(pt) = 0;
                         end
-                    end
-                    
+                    end 
                 end
-                
             end
-            disp("end part 2 at: " + datestr(now, 'HH:MM:SS.FFF'));
+            
+            part2TEnd = main.trackTime(part1TEnd, 2);
             
             %figure;
             %imshow(skel);
@@ -186,11 +187,11 @@ classdef main
             usedBlobs{l} = scaledBlob;
             
 %             subplot(2,numOfTextLabels, numOfTextLabels+l)
-            imshow(scaledBlob)
+            %imshow(scaledBlob)
             
             end
             
-            disp("end part 3 at: " + datestr(now, 'HH:MM:SS.FFF'));
+            part3TEnd = main.trackTime(part2TEnd, 3);
             
             % create output
             img = zeros(size(imageText));
@@ -233,6 +234,39 @@ classdef main
             imshow(finalImage);
             
             subplot(2, 2, 4);
-            end   
+            finalImageText = imageText;
+            tempImage = rgb2gray(img);
+            
+            for x = 1 : size(finalImageText, 1)
+                for y = 1 : size(finalImageText, 2)
+                    if (tempImage(x, y) ~= 0)
+                        finalImageText(x, y) = img(x, y);
+                        disp("a");
+                    end
+                end
+            end
+            imshow(finalImageText);
+            
+            imwrite(finalImage, '../output/result.jpg');
+            imwrite(finalImageText, '../output/resultwithtext.jpg');
+            
+            main.trackTime(appTStart, "end");
+        end
+        
+        
+        function timestamp = trackTime(oldTimestamp, part)
+            timestamp = datestr(now, 'HH:MM:SS');
+            
+            if (strcmp(part, "start"))
+                disp("Application started at: " + timestamp);
+            elseif (strcmp(part, "end"))
+                diff = (datenum(timestamp) - datenum(oldTimestamp)) * 24 * 60 * 60;
+                disp("Application ended at: " + timestamp);
+                disp("Duration: " + diff + "s");
+            else
+                diff = (datenum(timestamp) - datenum(oldTimestamp)) * 24 * 60 * 60;
+                disp("Finished Part " + part + " at: " + timestamp + " (" + diff + "s)");
+            end
+        end
       end
 end
