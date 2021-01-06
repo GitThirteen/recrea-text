@@ -14,7 +14,7 @@ classdef Algorithms
                    whitePx = sum(skel(:));
                    result = Algorithms.trace(skel, startP, endP, zeros(100000,2), 0, 0, round(whitePx * 0.5));
                    
-                   if (isEmpty(result))
+                   if (isempty(result))
                        result = startP;
                        return;
                    end

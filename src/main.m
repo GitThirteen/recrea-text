@@ -272,5 +272,5 @@ classdef main
                 disp("Finished Part " + part + " at: " + timestamp + " (" + diff + "s)");
             end
         end
-      end
+    end
 end
