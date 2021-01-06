@@ -2,9 +2,10 @@ classdef main
     methods(Static)
         %% SEGMENTIER-BILD
         function mainFunc(imageObj, imageText)
-            disp("start at: " + datestr(now, 'HH:MM:SS.FFF'));
             addpath('./helpers');
             addpath('../assets');
+            
+            appTStart = main.trackTime(NaN, "start");
 
             %PRE-PROCESSING
             imageAdjusted = imadjust(imageObj, [0.3 0.7], []);
@@ -20,11 +21,16 @@ classdef main
             %CREATE BINARY IMAGE
             mask = Filter.imageToBinary(imageWithGauss, 0.85);
             
-            figure;
-            imshow(mask);
+            %figure;
+            %imshow(mask);
            
             %CREATE LABELED IMAGE -> need REGION GROWING instead
             [labeledImage, numOfLabels] = bwlabel(mask);
+            %[labeledImage, numOfLabels] = Filter.regionLabeling(imageWithGauss, 0.85);
+            
+            figure;
+            imshow(labeledImage)
+            
             
             %deviation array containing distance value, deviationRpw and
             %deviationColumn
@@ -58,7 +64,8 @@ classdef main
                 deviationsBlobs(i,:) = Algorithms.curvature(skelblob, endpointsBlobs(i,:));
                 
             end
-            disp("end part 1 at: " + datestr(now, 'HH:MM:SS.FFF'));
+            
+            part1TEnd = main.trackTime(appTStart, 1);
 %% TEXTBILD 
           
             % CREATE BINARY IMAGE
@@ -66,12 +73,12 @@ classdef main
             %imshow(binaryText);
             
             % CREATE SKELETON -> need SKELETONIZATION algorithm
-            %skel = bwskel(binaryText, 'MinBranchLength', 40); % removes short sidebranches
-            skel = Skeletonization.skeleton(binaryText);
+            skel = bwskel(binaryText, 'MinBranchLength', 40); % removes short sidebranches
+            %skel = Skeletonization.skeleton(binaryText);
             
             % remove branchpoints
             branchPoints = bwmorph(skel, 'branchpoints');
-            %branchPoints = imdilate(branchPoints, strel('cube', 9));
+            branchPoints = imdilate(branchPoints, strel('cube', 9));
             skel(branchPoints) = 0;
      
             figure;
@@ -109,7 +116,7 @@ classdef main
                 % biggest curvatures) 
                 if deviationsText(i,1) > max(deviationsBlobs(:,1))
                 
-                    imgFF = Algorithms.traceLine(curve, [row1, col1], [row2, col2]);
+                    imgFF = Algorithms.traceLine(curve, [row1, col1], [row2, col2], "default");
 
                     if (size(imgFF, 1) > 0)
                         for j = 1 : size(imgFF, 1)
@@ -121,12 +128,11 @@ classdef main
                             pt = imdilate(mask, strel('cube', 9));
                             skel(pt) = 0;
                         end
-                    end
-                    
+                    end 
                 end
-                
             end
-            disp("end part 2 at: " + datestr(now, 'HH:MM:SS.FFF'));
+            
+            part2TEnd = main.trackTime(part1TEnd, 2);
             
             %figure;
             %imshow(skel);
@@ -181,16 +187,16 @@ classdef main
             rotatedBlob = Transform.rotate(closestBlob, factors(1));
             
             % scale Blob
-            scaledBlob = Transform.scaling(rotatedBlob, factors(2));
+            scaledBlob = Transform.scale(rotatedBlob, factors(2));
             
             usedBlobs{l} = scaledBlob;
             
 %             subplot(2,numOfTextLabels, numOfTextLabels+l)
-            imshow(scaledBlob)
+            %imshow(scaledBlob)
             
             end
             
-            disp("end part 3 at: " + datestr(now, 'HH:MM:SS.FFF'));
+            main.trackTime(part2TEnd, 3); % end part 3 
             
             % create output
             img = zeros(size(imageText));
@@ -206,13 +212,12 @@ classdef main
                 centroid = regionprops(curveOut, 'Centroid').Centroid;
 
                 numRowsBlob = size(blobOut,1);
-                firsthalfRows = round(numRowsBlob/2);
-                secondhalfRows = numRowsBlob - firsthalfRows;
+                firsthalfRows = uint16(round(numRowsBlob/2));
+                secondhalfRows = uint16(numRowsBlob - firsthalfRows);
                 numColsBlob = size(blobOut,2);
-                firsthalfCols = round(numColsBlob/2);
-                secondhalfCols = numColsBlob - firsthalfCols;
+                firsthalfCols = uint16(round(numColsBlob/2));
+                secondhalfCols = uint16(numColsBlob - firsthalfCols);
                 
-                %img(rowLeftTop:rowLeftTop+numRowsBlob-1, colLeftTop:colLeftTop+numColsBlob-1, :) = blobOut;
                 inposition(centroid(2)-firsthalfRows : centroid(2)+secondhalfRows-1, centroid(1)-firsthalfCols : centroid(1)+secondhalfCols-1, :) = blobOut;
                
                 img = img + inposition;
@@ -233,6 +238,38 @@ classdef main
             imshow(finalImage);
             
             subplot(2, 2, 4);
-            end   
-      end
+            finalImageText = imageText;
+            tempImage = rgb2gray(img);
+            
+            for x = 1 : size(finalImageText, 1)
+                for y = 1 : size(finalImageText, 2)
+                    if (tempImage(x, y) ~= 0)
+                        finalImageText(x, y, :) = img(x, y, :);
+                    end
+                end
+            end
+            imshow(finalImageText);
+            
+            imwrite(finalImage, '../output/result.jpg');
+            imwrite(finalImageText, '../output/resultwithtext.jpg');
+            
+            main.trackTime(appTStart, "end");
+        end
+        
+        
+        function timestamp = trackTime(oldTimestamp, part)
+            timestamp = datestr(now, 'HH:MM:SS');
+            
+            if (strcmp(part, "start"))
+                disp("Application started at: " + timestamp);
+            elseif (strcmp(part, "end"))
+                diff = (datenum(timestamp) - datenum(oldTimestamp)) * 24 * 60 * 60;
+                disp("Application ended at: " + timestamp);
+                disp("Duration: " + diff + "s");
+            else
+                diff = (datenum(timestamp) - datenum(oldTimestamp)) * 24 * 60 * 60;
+                disp("Finished Part " + part + " at: " + timestamp + " (" + diff + "s)");
+            end
+        end
+    end
 end
