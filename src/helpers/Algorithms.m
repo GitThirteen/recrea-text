@@ -132,15 +132,15 @@ classdef Algorithms
            end
            
            function branchpoints = findBranchpoints(skel)
-               branchpoints = zeros(10000, 2);
+               branchpoints = zeros(1000, 2);
                index = 1;
                
-               for x = 1 : size(skel, 1)
-                   for y = 1 : size(skel, 2)
-                       if (skel(x, y) == 1)
-                           if (Algorithms.isBranchpoint(skel, x, y))
-                               branchpoints(index, 1) = x;
-                               branchpoints(index, 2) = y;
+               for row = 1 : size(skel, 1)
+                   for col = 1 : size(skel, 2)
+                       if (skel(row, col) == 1)
+                           if (Algorithms.isBranchpoint(skel, row, col))
+                               branchpoints(index, 1) = row;
+                               branchpoints(index, 2) = col;
 
                                index = index + 1;
                            end
@@ -151,24 +151,36 @@ classdef Algorithms
                branchpoints = branchpoints(1:index - 1, :);
            end
            
-           function result = isBranchpoint(skel, x, y)
-               amount = 0;
+           function result = isBranchpoint(skel, row, col)
+               values = zeros(1, 9);
+               index = 1;
                
                for i = -1 : 1
                    for j = - 1 : 1
-                       if ((i ~= 0 && j ~= 0) && skel(x + i, y + j) == 1)
-                           amount = amount + 1;
+                       if (i ~= 0 || j ~= 0)
+                           values(index) = skel(row + i, col + j);
                        end
                        
-                       if (amount >= 4)
-                           result = true;
-                           return;
-                       end
+                       index = index + 1;
                    end
                end
-               
-               result = false;
+
+               amount = sum(values(:));
+               if (amount == 3)
+                   if ((values(1) && values(2)) || (values(2) && values(3)) || (values(1) && values(4)) || (values(4) && values(7)) || (values(3) && values(6)) || values(6) && values(9) || (values(7) && values(8)) || (values(8) && values(9)))
+                       result = false;
+                       return;
+                   end
+                   
+                   result = true;
+                   return;
+               elseif (amount >= 4)
+                   result = true;
+                   return;
+               else
+                   result = false;
+               end
            end
-    end
+      end
 end
 

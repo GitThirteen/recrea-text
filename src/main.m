@@ -77,9 +77,22 @@ classdef main
             %skel = Skeletonization.skeleton(binaryText);
             
             % remove branchpoints
-            branchPoints = bwmorph(skel, 'branchpoints');
-            branchPoints = imdilate(branchPoints, strel('cube', 9));
-            skel(branchPoints) = 0;
+            branchPoints = zeros(size(skel));
+            branchPointArray = Algorithms.findBranchpoints(skel);
+            
+            if (size(branchPointArray, 1) > 0)
+                for i = 1 : size(branchPointArray, 1)
+                    row = branchPointArray(i, 1);
+                    col = branchPointArray(i, 2);
+
+                    branchPoints(row, col) = 1;
+                end
+            end
+            
+            bp = imdilate(branchPoints, strel('cube', 9));
+            figure;
+            imshow(bp);
+            skel(bp == 1) = 0;
      
             figure;
             imshow(skel);
@@ -261,6 +274,7 @@ classdef main
             timestamp = datestr(now, 'HH:MM:SS');
             
             if (strcmp(part, "start"))
+                disp("----------------");
                 disp("Application started at: " + timestamp);
             elseif (strcmp(part, "end"))
                 diff = (datenum(timestamp) - datenum(oldTimestamp)) * 24 * 60 * 60;
