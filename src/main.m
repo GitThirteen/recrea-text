@@ -1,105 +1,109 @@
 classdef main
+    % main function of RecreaText program
+    % to start, run RecreaText.mlapp
+    
     methods(Static)
-        %% SEGMENTIER-BILD
+        
         function mainFunc(imageObj, imageText)
             addpath('./helpers');
             addpath('../assets');
             
             appTStart = main.trackTime(NaN, "start");
+%% PART 1: OBJECT IMAGE
 
-            %PRE-PROCESSING
+      % PRE-PROCESSING (increase contrast, filter with gauß)
             imageAdjusted = imadjust(imageObj, [0.3 0.7], []);
-            
             %figure;
             %imshow(imageAdjusted)
             
             imageWithGauss = Filter.gaussFilter(imageAdjusted, 1, 3);
-            
             figure;
             imshow(imageWithGauss);
             
-            %CREATE BINARY IMAGE
+      % CREATE BINARY IMAGE
             mask = Filter.imageToBinary(imageWithGauss, 0.85);
-            
             %figure;
             %imshow(mask);
            
-            %CREATE LABELED IMAGE -> need REGION GROWING instead
+      % SEGMENT IMAGE (Region Growing) & LABEL IMAGE
             [labeledImage, numOfLabels] = bwlabel(mask);
             %[labeledImage, numOfLabels] = Filter.regionLabeling(imageWithGauss, 0.85);
-            
             figure;
             imshow(labeledImage)
             
+      % EXTRACT BLOBS & THEIR PROPERTIES FROM LABELED IMAGE
+      % (save each blob (=segmented object) separately in cell array)
+      % (find out curvature properties of blobs)
             
-            %deviation array containing distance value, deviationRpw and
-            %deviationColumn
+            % array for saving curvature properties
+            % distance value, deviationRow and deviationColumn
             deviationsBlobs = zeros(numOfLabels, 5);  
-            
-            %SAVE BLOBS IN CELL ARRAY
-            blobs = cell(numOfLabels, 1); % contains all blobs
-            %SAVE ENDPOINTS IN ARRAY
+            % cell array for saving all blobs
+            blobs = cell(numOfLabels, 1); 
+            % array for saving endpoints of blobs
             endpointsBlobs = zeros(numOfLabels, 4);
-            areaBlobs = zeros(numOfLabels,1);
+            
+            % loop over all existing object-blobs
             for i = 1 : numOfLabels
+                
+                % find blob with label i
                 blob = labeledImage == i;
                 
+                % extract blob from imageObj
                 img = imageObj;
                 mask = repmat(blob,1,1,3);
                 img(~mask) = 0;
                 
+                % compute bounding box, crop blob & save in cell array
                 bBox = regionprops(blob, 'BoundingBox').BoundingBox;
                 img = imcrop(img, bBox);
                 blobs{i} = img;
                 
-                %skeleton & deviation from straight line
+                % compute skeleton & find its endpoints
                 skelblob = bwskel(blob);
-                areaBlobs(i) = sum(sum(skelblob==1));
-
+                % skelblob = Skeletonization.skeleton(skelblob);
+                
                 endpoints = bwmorph(skelblob, 'endpoints');
                 [r1, c1] = find(endpoints, 1, 'first'); % x, y of point A
                 [r2, c2] = find(endpoints, 1, 'last');  % x, y of point B
                 endpointsBlobs(i,:) = [r1,c1,r2,c2];
                 
+                % compute curvature properties
                 deviationsBlobs(i,:) = Algorithms.curvature(skelblob, endpointsBlobs(i,:));
                 
             end
-            
+%%            
             part1TEnd = main.trackTime(appTStart, 1);
-%% TEXTBILD 
+%% PART 2: TEXT IMAGE 
           
-            % CREATE BINARY IMAGE
+    % CREATE BINARY IMAGE
             binaryText = Filter.imageToBinary(imageText, 0.85);
             %imshow(binaryText);
             
-            % CREATE SKELETON -> need SKELETONIZATION algorithm
-            %skel = bwskel(binaryText, 'MinBranchLength', 40); % removes short sidebranches
-            skel = Skeletonization.skeleton(binaryText);
+    % CREATE SKELETON & REMOVE BRANCHPOINTS
+            skel = bwskel(binaryText, 'MinBranchLength', 40); % removes short sidebranches
+            %skel = Skeletonization.skeleton(binaryText);
             
-            % remove branchpoints
             branchPoints = bwmorph(skel, 'branchpoints');
-            %branchPoints = imdilate(branchPoints, strel('cube', 9));
+            branchPoints = imdilate(branchPoints, strel('cube', 9));
             skel(branchPoints) = 0;
      
             figure;
             imshow(skel);
             
-            %label single branches of skeleton
+    % SEGMENT IMAGE (Region Growing) & LABEL IMAGE
             [labeledTextSkel, numOfTextLabels] = bwlabel(skel);
+            %[labeledTextSkel, numOfTextLabels] = Filter.regionLabeling(skel);
             
-            %colLabel = label2rgb(labeledTextSkel, 'jet', 'k');
-            
-            %figure;
-            %imshow(colLabel);
-            
-            %compute deviation of skeleton from the straight line that
-            %connects boths endpoints 
-            % save endpoints and deviation values in arrays
+            % arrays for saving curvature properties and endpoints of
+            % skeleton
             deviationsText = zeros(numOfTextLabels,5); 
             endpointsCurves = zeros(numOfTextLabels,4);
             
+            % loop over all existing text-blobs
             for i = 1 : numOfTextLabels
-                % get curve i
+                
+                % find curve (=blob) with label i
                 curve = labeledTextSkel == i;
 
                 % find endpoints of curve
@@ -108,12 +112,13 @@ classdef main
                 [row2, col2] = find(endpoints, 1, 'last');
                 endpointsCurves(i,:) = [row1, col1, row2, col2];
                 
-                % compute curvature value 
+                % compute curvature properties 
                 deviationsText(i,:) = Algorithms.curvature(curve, endpointsCurves(i,:));
                 
-                % split curve in case it has curvature value greater than the
-                % maximum curvature of the blobs (i.e. the curves with
-                % biggest curvatures) 
+                % in case it has curvature value greater than the
+                % maximum curvature of the blobs (which means, that it
+                % cannot be properly reconstructed by an object-blob), the
+                % curve is split up
                 if deviationsText(i,1) > max(deviationsBlobs(:,1))
                 
                     imgFF = Algorithms.traceLine(curve, [row1, col1], [row2, col2], "default");
@@ -131,102 +136,100 @@ classdef main
                     end 
                 end
             end
-            
+           
+%% 
             part2TEnd = main.trackTime(part1TEnd, 2);
-            
-            %figure;
-            %imshow(skel);
-             
+%% PART 3: MATCH OBJECT-BLOBS & TEXT-BLOBS 
+   % FIRST: REPEAT PREVIOUS LOOP 
+   % because there might be more curves in the text-skeleton now, in case
+   % some were split up
+   
             [labeledTextSkel, numOfTextLabels] = bwlabel(skel);
             
             deviationsText = zeros(numOfTextLabels, 5);
             endpointsCurves = zeros(numOfTextLabels,4);
-            areaCurves = zeros(numOfTextLabels,1);
             usedBlobs = cell(numOfTextLabels, 1); % contains all used blobs;
-            figure;
-            for l = 1:numOfTextLabels
+          
+            % loop over all text blobs (incl. the new ones)
+            for l = 1:numOfTextLabels  
                 
-            % berechne nochmal deviation werte, weil zusätzliche kurven 
-            curve = labeledTextSkel == l;
-            areaCurves(l) = sum(sum(curve==1));
+                curve = labeledTextSkel == l;
 
-            % find endpoints of curve
-            endpoints = bwmorph(curve, 'endpoints');
-            [row1, col1] = find(endpoints, 1, 'first');
-            [row2, col2] = find(endpoints, 1, 'last');
-            endpointsCurves(l,:) = [row1, col1, row2, col2];
+                % find endpoints of curve
+                endpoints = bwmorph(curve, 'endpoints');
+                [row1, col1] = find(endpoints, 1, 'first');
+                [row2, col2] = find(endpoints, 1, 'last');
+                endpointsCurves(l,:) = [row1, col1, row2, col2];
 
-            % compute curvature value 
-            deviationsText(l,:) = Algorithms.curvature(curve, endpointsCurves(l,:));
-            
-%             bbox = regionprops(curve, 'BoundingBox').BoundingBox;
-%             curve = imcrop(curve, bbox);
-            
-%             subplot(2, numOfTextLabels, l)
-%             imshow(curve)
-            
-            % suche Blob, der den (annähernd) gleichen deviation Wert aufweist
-            % wie die Kurve des Branches im Text
-            TextDev = deviationsText(l,1);
-            minDiff = 1000000;
-            closestBlob = zeros(2);
-            index = 1;
-            for k=1:length(blobs)
-                difference = abs(TextDev) - abs(deviationsBlobs(k));
-                if abs(difference) < minDiff
-                    minDiff = abs(difference);
-                    closestBlob = blobs{k};
-                    index = k;
+                % compute curvature properties 
+                deviationsText(l,:) = Algorithms.curvature(curve, endpointsCurves(l,:));
+
+   % FIND OBJECT-BLOB THAT IS THE BEST MATCH FOR TEXT-BLOB(CURVE)
+   
+                % compare curvature properties
+                % find the blob with minimal difference of curvature value
+                TextDev = deviationsText(l,1);
+                minDiff = 1000000;
+                closestBlob = zeros(2);
+                index = 1;
+                for k=1:length(blobs)
+                    difference = abs(TextDev) - abs(deviationsBlobs(k));
+                    if abs(difference) < minDiff
+                        minDiff = abs(difference);
+                        closestBlob = blobs{k};
+                        index = k;
+                    end
                 end
-            end
-            
-            % find transformation factors [angle, scalingFactor]
-            factors = Transform.transformFactors(closestBlob, endpointsBlobs(index,:), endpointsCurves(l,:), deviationsBlobs(index,:), deviationsText(l,:));
-            
-            % rotate Blob
-            rotatedBlob = Transform.rotate(closestBlob, factors(1));
-            
-            % scale Blob
-            scaledBlob = Transform.scale(rotatedBlob, factors(2));
-            
-            usedBlobs{l} = scaledBlob;
-            
-%             subplot(2,numOfTextLabels, numOfTextLabels+l)
-            %imshow(scaledBlob)
+
+    % TRANSFORM BLOB ACCORDING TO LOCATION OF TEXT-CURVE
+    
+                % find transformation factors [angle, scalingFactor]
+                factors = Transform.transformFactors(closestBlob, endpointsBlobs(index,:), endpointsCurves(l,:), deviationsBlobs(index,:), deviationsText(l,:));
+
+                % rotate & scale
+                rotatedBlob = Transform.rotate(closestBlob, factors(1));
+                scaledBlob = Transform.scale(rotatedBlob, factors(2));
+
+                % save transformed blob in cell array
+                usedBlobs{l} = scaledBlob;
             
             end
+%%           
+            main.trackTime(part2TEnd, 3); % end part 3 
+
+%% CREATE OUTPUT            
             
-            main.trackTime(part2TEnd, 3);
-            
-            % create output
             img = zeros(size(imageText));
             for i = 1 : numOfTextLabels
+                % create temporary image with original size  for each blob
+                % & locate the blob at correct position
                 inposition = zeros(size(imageText));
                 blobOut = usedBlobs{i};
                 curveOut = labeledTextSkel == i;
                 
-               % bbox = regionprops(curveOut, 'BoundingBox').BoundingBox;
-%                 colLeftTop = bbox(1);
-%                 rowLeftTop = bbox(2);
-                
+                % find centroid for positioning the center of the
+                % object-blob at the center of the text-blob
+                % (in order to avoid big shifts)
                 centroid = regionprops(curveOut, 'Centroid').Centroid;
 
                 numRowsBlob = size(blobOut,1);
-                firsthalfRows = round(numRowsBlob/2);
-                secondhalfRows = numRowsBlob - firsthalfRows;
+                firsthalfRows = uint16(round(numRowsBlob/2));
+                secondhalfRows = uint16(numRowsBlob - firsthalfRows);
                 numColsBlob = size(blobOut,2);
-                firsthalfCols = round(numColsBlob/2);
-                secondhalfCols = numColsBlob - firsthalfCols;
+                firsthalfCols = uint16(round(numColsBlob/2));
+                secondhalfCols = uint16(numColsBlob - firsthalfCols);
                 
-                %img(rowLeftTop:rowLeftTop+numRowsBlob-1, colLeftTop:colLeftTop+numColsBlob-1, :) = blobOut;
                 inposition(centroid(2)-firsthalfRows : centroid(2)+secondhalfRows-1, centroid(1)-firsthalfCols : centroid(1)+secondhalfCols-1, :) = blobOut;
                
+                % add temporary image to output image
+                % (background pixels with value 0 don't affect already
+                % existing nonzero pixels -> no overlap of
+                % blob-backgrounds)
                 img = img + inposition;
-                
-                imshow(uint8(img));
-                
+             
             end
             
+    % DISPLAY INPUT IMAGES
             figure;
             subplot(2, 2, 1);
             imshow(imageObj);
@@ -234,6 +237,7 @@ classdef main
             subplot(2, 2, 2);
             imshow(imageText);
             
+    % DISPLAY FINAL IMAGE
             subplot(2, 2, 3);
             finalImage = uint8(img);
             imshow(finalImage);
@@ -242,6 +246,7 @@ classdef main
             finalImageText = imageText;
             tempImage = rgb2gray(img);
             
+    % DISPLAY OVERLAY IMAGE (FINAL & ORIGINAL TEXT)
             for x = 1 : size(finalImageText, 1)
                 for y = 1 : size(finalImageText, 2)
                     if (tempImage(x, y) ~= 0)
@@ -251,13 +256,15 @@ classdef main
             end
             imshow(finalImageText);
             
+    % SAVE OUTPUT AS FILE
             imwrite(finalImage, '../output/result.jpg');
             imwrite(finalImageText, '../output/resultwithtext.jpg');
-            
+%%
             main.trackTime(appTStart, "end");
         end
         
-        
+%% TIMING FUNCTION
+
         function timestamp = trackTime(oldTimestamp, part)
             timestamp = datestr(now, 'HH:MM:SS');
             
@@ -272,5 +279,5 @@ classdef main
                 disp("Finished Part " + part + " at: " + timestamp + " (" + diff + "s)");
             end
         end
-      end
+    end
 end
