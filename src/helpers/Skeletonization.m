@@ -51,6 +51,23 @@ classdef Skeletonization
                                 %check if the pixel has to be removed
                                 if((pos(2)==0 || pos(4)==0 || pos(6)==0) && (pos(4)==0 || pos(6)==0 || pos(8)==0) && 2 <= nonZeroNeighbor && nonZeroNeighbor <= 6 && transitSequence == 1)
                                     mark(y,x) = 1;
+                                    changed = 1;
+                               
+                                elseif(pos(2)==1 && (pos(9)==1 || pos(3) == 1) && changed ~= 1 && 3 == nonZeroNeighbor)
+                                    mark(y,x) = 1;
+                                    changed = 1;
+                                
+                                elseif(pos(4)==1 && (pos(3)==1 || pos(5)==1)&& changed ~= 1 && 3 == nonZeroNeighbor)
+                                    mark(y,x) = 1;
+                                    changed = 1;
+                                
+%                                 if(pos(6)==1 && (pos(5)==1 || pos(7)==1)&& changed ~= 1 && 3 == nonZeroNeighbor)
+%                                     mark(y,x) = 1;
+%                                     changed = 1;
+%                                 end
+%                                 elseif(pos(8)==1 && (pos(7)==1 || pos(9)==1)&& changed ~= 1 && 3 == nonZeroNeighbor)
+%                                     mark(y,x) = 1;
+%                                     changed = 1;
                                 end
                             end
                             
@@ -59,6 +76,9 @@ classdef Skeletonization
                                 if((pos(2)==0 || pos(4)==0 || pos(8)==0) && (pos(2)==0 || pos(6)==0 || pos(8)==0) && 2 <= nonZeroNeighbor && nonZeroNeighbor <= 6 && transitSequence == 1)
                                     mark(y,x) = 1;
                                 end
+%                                 if((pos(3)==0 || pos(5)==0 || pos(9)==0) && (pos(3)==0 || pos(7)==0 || pos(9)==0) && 2 <= nonZeroNeighbor && nonZeroNeighbor <= 6 && transitSequence == 1 && changed ~= 1)
+%                                     mark(y,x) = 1;
+%                                 end
                             end
                         end
                     end
@@ -80,6 +100,7 @@ classdef Skeletonization
                 end
                 
             end
+            %inputImage = bwmorph(inputImage,'bridge');
             figure;
             imshow(inputImage)
             result = inputImage;
