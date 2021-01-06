@@ -81,8 +81,8 @@ classdef main
             %imshow(binaryText);
             
     % CREATE SKELETON & REMOVE BRANCHPOINTS
-            skel = bwskel(binaryText, 'MinBranchLength', 40); % removes short sidebranches
-            %skel = Skeletonization.skeleton(binaryText);
+            %skel = bwskel(binaryText, 'MinBranchLength', 40); % removes short sidebranches
+            skel = Skeletonization.skeleton(binaryText);
             
             % remove branchpoints
             branchPoints = zeros(size(skel));
