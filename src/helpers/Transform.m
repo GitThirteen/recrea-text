@@ -2,6 +2,7 @@ classdef Transform
 
     methods(Static)
         
+%% Transformation factors
           % blob = the (segmented) object to be transformed
           % endpBlob = array of endpoints of the Blob (of the form [r1,c1,r2,c2])
           % endpText = array of endpoints of the Text-curve (of the form [r1,c1,r2,c2])
@@ -57,10 +58,11 @@ classdef Transform
           return;
         end
         
+%% Rotate
           % blob = the segmented object (blob) to be rotated
+          % angle = the angle (in radians), which the blob should be 
+          %         rotated counterclockwise
            function imRotated = rotate(blob, angle)
-             % rotates the blob counterclockwise according to angle value
-
   %% this version works 
               
              % rotation matrix
@@ -80,7 +82,6 @@ classdef Transform
                % center of blob image
                midRow = round(nrows/2);
                midCol = round(ncols/2); 
- 
                
                % rotate around center
                
@@ -106,7 +107,7 @@ classdef Transform
                    end
               end  
         
-%% this version works, too
+       %% this version works, too
 %               [m,n]=size(blob,1:2);
 %           
 %                maxsize = max(m,n);
@@ -126,21 +127,23 @@ classdef Transform
 %%
               return;
            end
-     
-           function imScaled = scaling(blob, factor)
+%% Scale 
+           % blob = the image to be scaled
+           % factor = scaling factor (is used for both x & y)
+           function imScaled = scale(blob, factor)
 
-            scale = [factor, factor];            
+           % scaleRowCol = [factor, factor];            
             sizeBlob = size(blob);  
             % take max(..,1), so that scaling to 0 is not possible for
-            % small factor
-            sizeScaled = max(floor(scale.*sizeBlob(1:2)),1); 
+            % small factor, so minimum scaled size is 1 pixel
+            sizeScaled = max(floor(factor.*sizeBlob(1:2)),1); 
 
             % indices of blob that are needed for scaled image
             % case: upscaling -> containing duplicates
             % case: downscaling -> leaving out indices
             % use nearest neighbor
-            rowsScaled = min(round(((1:sizeScaled(1))-0.5)./scale(1)+0.5),sizeBlob(1));
-            colsScaled = min(round(((1:sizeScaled(2))-0.5)./scale(2)+0.5),sizeBlob(2));
+            rowsScaled = min(round(((1:sizeScaled(1))-0.5)./factor+0.5),sizeBlob(1));
+            colsScaled = min(round(((1:sizeScaled(2))-0.5)./factor+0.5),sizeBlob(2));
      
             imScaled = blob(rowsScaled,colsScaled,:);
            end

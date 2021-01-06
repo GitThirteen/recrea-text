@@ -182,7 +182,7 @@ classdef main
             rotatedBlob = Transform.rotate(closestBlob, factors(1));
             
             % scale Blob
-            scaledBlob = Transform.scaling(rotatedBlob, factors(2));
+            scaledBlob = Transform.scale(rotatedBlob, factors(2));
             
             usedBlobs{l} = scaledBlob;
             
