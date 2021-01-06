@@ -1,15 +1,10 @@
 classdef Transform
 
     methods(Static)
-          % blob = the segmented object (blob) to be rotated
-          % endpBlob = array of endpoints of the Blob (of the form [r1,c1,r2,c2])
-          % endpText = array of endpoints of the Text-curve
-          % (of the form [r1,c1,r2,c2])
-          % devBlob = array of the blob describing deviation properties from straight line 
-          % devText = array of the text curve describing deviation properties from straight line 
-           function imRotated = rotate(blob, endpBlob, endpText, devBlob, devText)
-                
-               %endpoints of curves
+        
+        function factors = transformFactors(blob, endpBlob, endpText, devBlob, devText)
+        % 1st: find angle for rotation
+            %endpoints of curves
                endpBlob1 = endpBlob(1:2);
                endpBlob2 = endpBlob(3:4);
                endpText1 = endpText(1:2);
@@ -44,8 +39,26 @@ classdef Transform
               %angle between vectors of curve&blob (vectors of the verbindungsgeraden) 
               angle = atan2(vectorT(2), vectorT(1)) - atan2(vectorB(2), vectorB(1));
               
-              %rotate
-              %imRotated = imrotate(blob, angle);
+          %2nd: find scaling factor
+          
+          normBlob = norm(endpBlob1-endpBlob2);
+          normText = norm(endpText1-endpText2);
+          
+          scalingFactor = normText/normBlob;
+                
+          % return 1x2 vector with angle & scaling factor
+          factors = [angle, scalingFactor];
+          return;
+        end
+        
+          % blob = the segmented object (blob) to be rotated
+          % endpBlob = array of endpoints of the Blob (of the form [r1,c1,r2,c2])
+          % endpText = array of endpoints of the Text-curve
+          % (of the form [r1,c1,r2,c2])
+          % devBlob = array of the blob describing deviation properties from straight line 
+          % devText = array of the text curve describing deviation properties from straight line 
+           function imRotated = rotate(blob, angle)
+             % rotates the blob counterclockwise according to angle value
                
               %% this version works
               [m,n]=size(blob,1:2);
@@ -115,27 +128,24 @@ classdef Transform
               return;
            end
      
-           function imScaled = scaling(blob, areaBlob, areaText)
+           function imScaled = scaling(blob, factor)
                
-               factor = areaText/areaBlob;
-               
-               imScaled = imresize(blob, factor);
-               
-               
+               %imScaled = imresize(blob, factor);
+
             %%# Initializations:
 
-            % scale = [2 2];              %# The resolution scale factors: [rows columns]
-            % oldSize = size(inputImage);                   %# Get the size of your image
-            % newSize = max(floor(scale.*oldSize(1:2)),1);  %# Compute the new image size
-            % 
-            % %# Compute an upsampled set of indices:
-            % 
-            % rowIndex = min(round(((1:newSize(1))-0.5)./scale(1)+0.5),oldSize(1));
-            % colIndex = min(round(((1:newSize(2))-0.5)./scale(2)+0.5),oldSize(2));
-            % 
-            % %# Index old image to get new image:
-            % 
-            % outputImage = inputImage(rowIndex,colIndex,:);
+            scale = [factor, factor];              %# The resolution scale factors: [rows columns]
+            oldSize = size(blob);                   %# Get the size of your image
+            newSize = max(floor(scale.*oldSize(1:2)),1);  %# Compute the new image size
+            
+            %# Compute an upsampled set of indices:
+            
+            rowIndex = min(round(((1:newSize(1))-0.5)./scale(1)+0.5),oldSize(1));
+            colIndex = min(round(((1:newSize(2))-0.5)./scale(2)+0.5),oldSize(2));
+            
+            %# Index old image to get new image:
+            
+            imScaled = blob(rowIndex,colIndex,:);
            end
            
     end

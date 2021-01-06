@@ -56,6 +56,7 @@ classdef main
                 endpointsBlobs(i,:) = [r1,c1,r2,c2];
                 
                 deviationsBlobs(i,:) = Algorithms.curvature(skelblob, endpointsBlobs(i,:));
+                
             end
             disp("end part 1 at: " + datestr(now, 'HH:MM:SS.FFF'));
 %% TEXTBILD 
@@ -70,9 +71,12 @@ classdef main
             
             % remove branchpoints
             branchPoints = bwmorph(skel, 'branchpoints');
-            branchPoints = imdilate(branchPoints, strel('cube', 9));
+            %branchPoints = imdilate(branchPoints, strel('cube', 9));
             skel(branchPoints) = 0;
      
+            figure;
+            imshow(skel);
+            
             %label single branches of skeleton
             [labeledTextSkel, numOfTextLabels] = bwlabel(skel);
             
@@ -158,9 +162,9 @@ classdef main
             % suche Blob, der den (annähernd) gleichen deviation Wert aufweist
             % wie die Kurve des Branches im Text
             TextDev = deviationsText(l,1);
-            minDiff = 100000;
+            minDiff = 1000000;
             closestBlob = zeros(2);
-            index = 0;
+            index = 1;
             for k=1:length(blobs)
                 difference = abs(TextDev) - abs(deviationsBlobs(k));
                 if abs(difference) < minDiff
@@ -170,17 +174,19 @@ classdef main
                 end
             end
             
- 
+            % find transformation factors [angle, scalingFactor]
+            factors = Transform.transformFactors(closestBlob, endpointsBlobs(index,:), endpointsCurves(l,:), deviationsBlobs(index,:), deviationsText(l,:));
+            
             % rotate Blob
-            rotatedBlob = Transform.rotate(closestBlob, endpointsBlobs(index,:), endpointsCurves(l,:), deviationsBlobs(index,:), deviationsText(l,:));
+            rotatedBlob = Transform.rotate(closestBlob, factors(1));
             
             % scale Blob
-            scaledBlob = Transform.scaling(rotatedBlob, areaBlobs(index), areaCurves(l));
+            scaledBlob = Transform.scaling(rotatedBlob, factors(2));
             
             usedBlobs{l} = scaledBlob;
             
 %             subplot(2,numOfTextLabels, numOfTextLabels+l)
-%             imshow(scaledBlob)
+            imshow(scaledBlob)
             
             end
             
@@ -210,6 +216,8 @@ classdef main
                 inposition(centroid(2)-firsthalfRows : centroid(2)+secondhalfRows-1, centroid(1)-firsthalfCols : centroid(1)+secondhalfCols-1, :) = blobOut;
                
                 img = img + inposition;
+                
+                imshow(uint8(img));
                 
             end
             
