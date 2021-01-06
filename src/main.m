@@ -73,12 +73,12 @@ classdef main
             %imshow(binaryText);
             
             % CREATE SKELETON -> need SKELETONIZATION algorithm
-            %skel = bwskel(binaryText, 'MinBranchLength', 40); % removes short sidebranches
-            skel = Skeletonization.skeleton(binaryText);
+            skel = bwskel(binaryText, 'MinBranchLength', 40); % removes short sidebranches
+            %skel = Skeletonization.skeleton(binaryText);
             
             % remove branchpoints
             branchPoints = bwmorph(skel, 'branchpoints');
-            %branchPoints = imdilate(branchPoints, strel('cube', 9));
+            branchPoints = imdilate(branchPoints, strel('cube', 9));
             skel(branchPoints) = 0;
      
             figure;
@@ -196,7 +196,7 @@ classdef main
             
             end
             
-            main.trackTime(part2TEnd, 3);
+            main.trackTime(part2TEnd, 3); % end part 3 
             
             % create output
             img = zeros(size(imageText));
@@ -212,13 +212,12 @@ classdef main
                 centroid = regionprops(curveOut, 'Centroid').Centroid;
 
                 numRowsBlob = size(blobOut,1);
-                firsthalfRows = round(numRowsBlob/2);
-                secondhalfRows = numRowsBlob - firsthalfRows;
+                firsthalfRows = uint16(round(numRowsBlob/2));
+                secondhalfRows = uint16(numRowsBlob - firsthalfRows);
                 numColsBlob = size(blobOut,2);
-                firsthalfCols = round(numColsBlob/2);
-                secondhalfCols = numColsBlob - firsthalfCols;
+                firsthalfCols = uint16(round(numColsBlob/2));
+                secondhalfCols = uint16(numColsBlob - firsthalfCols);
                 
-                %img(rowLeftTop:rowLeftTop+numRowsBlob-1, colLeftTop:colLeftTop+numColsBlob-1, :) = blobOut;
                 inposition(centroid(2)-firsthalfRows : centroid(2)+secondhalfRows-1, centroid(1)-firsthalfCols : centroid(1)+secondhalfCols-1, :) = blobOut;
                
                 img = img + inposition;

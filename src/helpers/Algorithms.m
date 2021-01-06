@@ -80,7 +80,7 @@ classdef Algorithms
                 
                % endpoints of type [row1, col1, row2, col2]
                
-                numPixelsInBlob = sum(sum(skelblob==1));
+                %numPixelsInBlob = sum(sum(skelblob==1));
                 
                 %middlePix = skelblob ;
                 %middlePix(endpoints(1:2)) = 0;
