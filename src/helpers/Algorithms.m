@@ -82,29 +82,33 @@ classdef Algorithms
                
                 numPixelsInBlob = sum(sum(skelblob==1));
                 
-                middlePix = skelblob ;
-                middlePix(endpoints(1:2)) = 0;
-                middlePix(endpoints(3:4)) = 0;
-                countPix = 0 ;
+                %middlePix = skelblob ;
+                %middlePix(endpoints(1:2)) = 0;
+                %middlePix(endpoints(3:4)) = 0;
+                %countPix = 0 ;
                 
                 % entferne wiederholt die endpunkte des skeletons, damit
                 % nur mehr mittleres Pixel übrig bleibt
-                while countPix < numPixelsInBlob/2-2
-                    endpix = bwmorph(middlePix, 'endpoints');
-                    endpix1 = find(endpix, 1, 'first');
-                    endpix2 = find(endpix, 1, 'last');
-                    middlePix(endpix1) = 0;
-                    middlePix(endpix2) = 0;
-                    countPix = countPix +1;
-                end
+%                 while countPix < numPixelsInBlob/2-2
+%                     endpix = bwmorph(middlePix, 'endpoints');
+%                     endpix1 = find(endpix, 1, 'first');
+%                     endpix2 = find(endpix, 1, 'last');
+%                     middlePix(endpix1) = 0;
+%                     middlePix(endpix2) = 0;
+%                     countPix = countPix +1;
+%                 end
                 
+                startPt = endpoints(1:2);
+                endPt = endpoints(3:4);
+                middlePix = Algorithms.traceLine(skelblob,startPt, endPt,'centerpt');
+
                 %[rowsLastHalfPixels, colsLastHalfPixels] = find(skelblob, numPixelsInBlob/2 , 'last');
-                [rMiddle, cMiddle] = find(middlePix==1);
+                %[rMiddle, cMiddle] = find(middlePix==1);
                 
                 % berechnet Abstand der jeweiligen Pixel, die
                 % in der Mitte der Kurve bzw. Vergleichsgeraden liegen.
-                devCol = (endpoints(2) + endpoints(4))/2 - (cMiddle(1));
-                devRow = (endpoints(1) + endpoints(3))/2 - (rMiddle(1));
+                devCol = (endpoints(2) + endpoints(4))/2 - (cMiddle);
+                devRow = (endpoints(1) + endpoints(3))/2 - (rMiddle);
           
                 % 1st entry = relative distance
                 % 2nd & 3rd entry = vector from middle of curve to middle
@@ -114,7 +118,7 @@ classdef Algorithms
                 distToLine = norm([devRow, devCol]);
                 relDist = distToLine/distEndp;
                 
-                dev = [relDist, devRow, devCol, rMiddle(1), cMiddle(1)];
+                dev = [relDist, devRow, devCol, rMiddle, cMiddle];
                 
                 return;
                

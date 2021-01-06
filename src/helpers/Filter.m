@@ -74,8 +74,8 @@ classdef Filter
         function regionMask = regionGrowingFromGrayscale(grayscaleImage, x, y, threshold)
             % Prime the region mask.
             [width, height] = size(grayscaleImage);
-            regionMask = zeros(width, height);
-            oldMask = zeros(width, height);
+            regionMask = false(width, height);
+            oldMask = false(width, height);
             diamondSE = strel('diamond', 1);
             
             % Set the seed point and dilation strel.
@@ -84,7 +84,7 @@ classdef Filter
             % Iterate until the region stops growing.
             while (sum(regionMask(:)) ~= sum(oldMask(:)))
                 oldMask = regionMask;
-                segValues = image(regionMask);
+                segValues = grayscaleImage(regionMask);
                 meanSegValue = mean(segValues);
                 dilMask = imdilate(regionMask, diamondSE);
                 nVal = dilMask - regionMask;
