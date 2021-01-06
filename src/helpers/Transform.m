@@ -1,16 +1,22 @@
 classdef Transform
 
-    methods(Static)
-        
-%% Transformation factors
-          % blob = the (segmented) object to be transformed
-          % endpBlob = array of endpoints of the Blob (of the form [r1,c1,r2,c2])
-          % endpText = array of endpoints of the Text-curve (of the form [r1,c1,r2,c2])
-          % devBlob = array of the blob describing deviation properties from straight line 
-          % devText = array of the text curve describing deviation properties from straight line 
+    % functions for transforming image
+    % transformFactors: finding angle for rotation and scaling factor for
+    %                   scale, based comparing values of 2 images
+    % rotate: performs counterclockwise rotation of an image
+    % scale: performs scaling of an image
+    
+    methods(Static)     
+%% transformFactors
+
+      % blob = the (segmented) object to be transformed
+      % endpBlob = array of endpoints of the Blob (of the form [r1,c1,r2,c2])
+      % endpText = array of endpoints of the Text-curve (of the form [r1,c1,r2,c2])
+      % devBlob = array of the blob describing deviation properties from straight line 
+      % devText = array of the text curve describing deviation properties from straight line 
         function factors = transformFactors(blob, endpBlob, endpText, devBlob, devText)
         % 1st: find angle for rotation
-            %endpoints of curves
+               %endpoints of curves
                endpBlob1 = endpBlob(1:2);
                endpBlob2 = endpBlob(3:4);
                endpText1 = endpText(1:2);
@@ -58,14 +64,13 @@ classdef Transform
           return;
         end
         
-%% Rotate
+%% rotate
           % blob = the segmented object (blob) to be rotated
           % angle = the angle (in radians), which the blob should be 
           %         rotated counterclockwise
            function imRotated = rotate(blob, angle)
-  %% this version works 
               
-             % rotation matrix
+               %rotation matrix
                matRotate = [cos(angle), -sin(angle);
                              sin(angle), cos(angle)];
                
@@ -76,15 +81,14 @@ classdef Transform
                maxsize = round(maxsize * sqrt(2));
                imRotated = zeros(maxsize, maxsize, 3);
  
-               %center of imRotated
+               % find centers, because we want to rotate around the center
+               % center of imRotated
                middle = round(maxsize/2);
                
                % center of blob image
                midRow = round(nrows/2);
                midCol = round(ncols/2); 
-               
-               % rotate around center
-               
+
                % create coordinates
                [rowMat, colMat]  = meshgrid(1:maxsize, 1:maxsize);
        
@@ -93,59 +97,43 @@ classdef Transform
                colArr = colMat(:);
                coords = [rowArr-middle,colArr-middle]; % maxsize x 2
                
-               %rotate
+               % rotate (multiply from the right, because coordinates are
+               % row-wise instead of column-wise)
                rotatedcoords = coords*matRotate;
                rotatedcoords(:,1) = round(rotatedcoords(:,1)+midRow);
                rotatedcoords(:,2) = round(rotatedcoords(:,2)+midCol);
                coords = [rowArr, colArr];
                 
-              for l = 1:size(rotatedcoords,1)
+               for l = 1:size(rotatedcoords,1)
                    a = rotatedcoords(l,1);
                    b = rotatedcoords(l,2);
                    if a>0 && b>0 && a<=nrows && b<=ncols          
                      imRotated(coords(l,1), coords(l,2),:)=blob(a,b,:);
                    end
-              end  
+               end  
         
-       %% this version works, too
-%               [m,n]=size(blob,1:2);
-%           
-%                maxsize = max(m,n);
-%                 
-%                mm = round(maxsize*sqrt(2));
-%                nn = round(maxsize*sqrt(2));
-%                imRotated = zeros(mm,nn,3);
-%                for t=1:mm
-%                   for s=1:nn
-%                      i = uint16((t-round(mm/2))*cos(angle)+(s-round(nn/2))*sin(angle)+round(m/2));
-%                      j = uint16(-(t-round(mm/2))*sin(angle)+(s-round(nn/2))*cos(angle)+round(n/2));
-%                       if i>0 && j>0 && i<=m && j<=n           
-%                          imRotated(t,s,:)=blob(i,j,:);
-%                       end
-%                    end
-%                end
-%%
-              return;
+               return;
            end
-%% Scale 
+           
+%% scale 
            % blob = the image to be scaled
            % factor = scaling factor (is used for both x & y)
            function imScaled = scale(blob, factor)
 
-           % scaleRowCol = [factor, factor];            
-            sizeBlob = size(blob);  
-            % take max(..,1), so that scaling to 0 is not possible for
-            % small factor, so minimum scaled size is 1 pixel
-            sizeScaled = max(floor(factor.*sizeBlob(1:2)),1); 
+                % scaleRowCol = [factor, factor];            
+                sizeBlob = size(blob);  
+                % take max(..,1), so that scaling to 0 is not possible for
+                % small factor, so minimum scaled size is 1 pixel
+                sizeScaled = max(floor(factor.*sizeBlob(1:2)),1); 
 
-            % indices of blob that are needed for scaled image
-            % case: upscaling -> containing duplicates
-            % case: downscaling -> leaving out indices
-            % use nearest neighbor
-            rowsScaled = min(round(((1:sizeScaled(1))-0.5)./factor+0.5),sizeBlob(1));
-            colsScaled = min(round(((1:sizeScaled(2))-0.5)./factor+0.5),sizeBlob(2));
-     
-            imScaled = blob(rowsScaled,colsScaled,:);
+                % indices of blob that are needed for scaled image
+                % case: upscaling -> containing duplicates
+                % case: downscaling -> leaving out indices
+                % use nearest neighbor
+                rowsScaled = min(round(((1:sizeScaled(1))-0.5)./factor+0.5),sizeBlob(1));
+                colsScaled = min(round(((1:sizeScaled(2))-0.5)./factor+0.5),sizeBlob(2));
+
+                imScaled = blob(rowsScaled,colsScaled,:);
            end
            
     end

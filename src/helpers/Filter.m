@@ -1,9 +1,13 @@
 classdef Filter
-    %FILTER Summary of this class goes here
-    %   Detailed explanation goes here
+    
+    % imageToBinary: converting rgb image to binary image
+    % gaussFilter: smoothing image with gaussian filter
+    % regionLabeling: segmenting image with regionGrowing and labeling
+    %                   segments
+    % dilate: performing morphological dilation on image
     
     methods(Static)
-        % Returns a black & while image depending on the set threshold
+        % Returns a black & white image depending on the set threshold
         function binaryImage = imageToBinary(image, threshold)
             grayImage = rgb2gray(image);
             
@@ -68,26 +72,26 @@ classdef Filter
         
         %region growing
         function regionMask = regionGrowing(image, x, y, threshold)
-            regionMask = Filter.regionGrowingFromGrayscale(rgb2gray(image), x, y, threshold);
+            grayscaleImage = rgb2gray(image);
+            regionMask = Filter.regionGrowingFromGrayscale(grayscaleImage, x, y, threshold);
         end
         
         function regionMask = regionGrowingFromGrayscale(grayscaleImage, x, y, threshold)
             % Prime the region mask.
-            [width, height] = size(grayscaleImage);
-            regionMask = false(width, height);
-            oldMask = false(width, height);
+            regionMask = false(size(grayscaleImage, 1), size(grayscaleImage, 2));
+            oldMask = false(size(grayscaleImage, 1), size(grayscaleImage, 2));
             diamondSE = strel('diamond', 1);
             
             % Set the seed point and dilation strel.
             regionMask(x, y) = 1;
             
             % Iterate until the region stops growing.
-            while (sum(regionMask(:)) ~= sum(oldMask(:)))
+            while sum(regionMask) ~= sum(oldMask)
                 oldMask = regionMask;
                 segValues = grayscaleImage(regionMask);
                 meanSegValue = mean(segValues);
-                dilMask = imdilate(regionMask, diamondSE);
-                nVal = dilMask - regionMask;
+                dilation = imdilate(regionMask, diamondSE) - regionMask;
+                nVal = find(dilation);
                 nValImage = grayscaleImage(nVal);
                 regionMask(nValImage > meanSegValue - threshold & nValImage < meanSegValue + threshold) = 1;
             end
@@ -105,18 +109,46 @@ classdef Filter
             
             % Iterate over binary image.
             for i = 1 : size(binaryImage, 1)
-                for j = 1 : size(binaryImage, 1)
-                    if binaryImage(i, j) == 1 | regionMap(i, j) == 0
+                for j = 1 : size(binaryImage, 2)
+                    if binaryImage(i, j) == 1 && regionMap(i, j) == 0
                         % If a pixel is in the foreground, but not part of
                         % a region yet, then it becomes the origin of a new
                         % region.
                         tempMask = Filter.regionGrowingFromGrayscale(binaryImage, i, j, 0.5);
                         regionsNr = regionsNr + 1;
-                        regionMap = regionMap + (tempMask * regionsNr);
+                        regionMap = regionMap + (tempMask .* regionsNr);
                     end
                 end
             end
         end
+        
+        function dilatedImage = dilate(binaryImage, structuringElement)
+            
+            se = structuringElement;
+            [p, q] = size(se);
+            [m, n] = size(binaryImage);
+            dil = zeros(m,n); 
+            
+            for i = 1:m
+                for j = 1:n
+                    if(binaryImage(i,j) == 1)
+                        for k = 1:p
+                for l = 1:q
+                    if(se(k,l) == 1)
+                        c = i+k;
+                        d = j+l;
+                        dil(c,d) = 1;
+                    end
+                end
+                        end
+                    end
+                end
+            end
+            
+            dilatedImage = dil;    
+                
+        end
+            
     end
 end
 
