@@ -68,26 +68,26 @@ classdef Filter
         
         %region growing
         function regionMask = regionGrowing(image, x, y, threshold)
-            regionMask = Filter.regionGrowingFromGrayscale(rgb2gray(image), x, y, threshold);
+            grayscaleImage = rgb2gray(image);
+            regionMask = Filter.regionGrowingFromGrayscale(grayscaleImage, x, y, threshold);
         end
         
         function regionMask = regionGrowingFromGrayscale(grayscaleImage, x, y, threshold)
             % Prime the region mask.
-            [width, height] = size(grayscaleImage);
-            regionMask = false(width, height);
-            oldMask = false(width, height);
+            regionMask = false(size(grayscaleImage, 1), size(grayscaleImage, 2));
+            oldMask = false(size(grayscaleImage, 1), size(grayscaleImage, 2));
             diamondSE = strel('diamond', 1);
             
             % Set the seed point and dilation strel.
             regionMask(x, y) = 1;
             
             % Iterate until the region stops growing.
-            while (sum(regionMask(:)) ~= sum(oldMask(:)))
+            while sum(regionMask) ~= sum(oldMask)
                 oldMask = regionMask;
                 segValues = grayscaleImage(regionMask);
                 meanSegValue = mean(segValues);
-                dilMask = imdilate(regionMask, diamondSE);
-                nVal = dilMask - regionMask;
+                dilation = imdilate(regionMask, diamondSE) - regionMask;
+                nVal = find(dilation);
                 nValImage = grayscaleImage(nVal);
                 regionMask(nValImage > meanSegValue - threshold & nValImage < meanSegValue + threshold) = 1;
             end
@@ -105,14 +105,14 @@ classdef Filter
             
             % Iterate over binary image.
             for i = 1 : size(binaryImage, 1)
-                for j = 1 : size(binaryImage, 1)
-                    if binaryImage(i, j) == 1 | regionMap(i, j) == 0
+                for j = 1 : size(binaryImage, 2)
+                    if binaryImage(i, j) == 1 && regionMap(i, j) == 0
                         % If a pixel is in the foreground, but not part of
                         % a region yet, then it becomes the origin of a new
                         % region.
                         tempMask = Filter.regionGrowingFromGrayscale(binaryImage, i, j, 0.5);
                         regionsNr = regionsNr + 1;
-                        regionMap = regionMap + (tempMask * regionsNr);
+                        regionMap = regionMap + (tempMask .* regionsNr);
                     end
                 end
             end
