@@ -1,6 +1,10 @@
 classdef Filter
-    %FILTER Summary of this class goes here
-    %   Detailed explanation goes here
+    
+    % imageToBinary: converting rgb image to binary image
+    % gaussFilter: smoothing image with gaussian filter
+    % regionLabeling: segmenting image with regionGrowing and labeling
+    %                   segments
+    % dilate: performing morphological dilation on image
     
     methods(Static)
         % Returns a black & white image depending on the set threshold
