@@ -235,11 +235,14 @@ classdef main
                 
                 inposition(centroid(2)-firsthalfRows : centroid(2)+secondhalfRows-1, centroid(1)-firsthalfCols : centroid(1)+secondhalfCols-1, :) = blobOut;
                
-                % add temporary image to output image
+                 % add temporary image to output image
                 % (background pixels with value 0 don't affect already
                 % existing nonzero pixels -> no overlap of
                 % blob-backgrounds)
-                img = img + inposition;
+                % in case part of the positioned blob-image lies outside
+                % the image size, inposition is cropped to the original
+                % size before adding
+                img = img + inposition(1:size(img,1), 1:size(img,2),:);
              
             end
             
