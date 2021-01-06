@@ -7,11 +7,19 @@ classdef Algorithms
            % startP - the starting point of a passed-in line
            % endP - the end of a passed-in line
            % pts - an array containing all seperation points
-           function result = traceLine(skel, startP, endP)
-               result = Algorithms.trace(skel, startP, endP, zeros(100000,2), 0, 0);
+           function result = traceLine(skel, startP, endP, mode)
+               if (strcmp(mode, "default"))
+                   result = Algorithms.trace(skel, startP, endP, zeros(100000,2), 0, 0, 100);
+               elseif (strcmp(mode, "centerpt"))
+                   whitePx = sum(skel(:));
+                   result = Algorithms.trace(skel, startP, endP, zeros(100000,2), 0, 0, whitePx * 0.5);
+                   result = result(1, :);
+               else
+                   error("Unrecognizable input for parameter <mode>. Expected 'default' or 'centerpt', found '" + mode + "' instead.");
+               end
            end
            
-           function result = trace(skel, startP, endP, pts, ctr, index)
+           function result = trace(skel, startP, endP, pts, ctr, index, threshold)
                sRow = startP(1);
                sCol = startP(2);
                eRow = endP(1);
@@ -22,7 +30,7 @@ classdef Algorithms
                    return;
                end
 
-               if (mod(ctr, 100) == 0)
+               if (mod(ctr, threshold) == 0)
                    index = index + 1;
                    pts(index, 1) = sRow;
                    pts(index, 2) = sCol;
@@ -31,35 +39,35 @@ classdef Algorithms
                skel(sRow, sCol) = 0;
 
                if (skel(sRow - 1, sCol + 1) ~= 0)
-                   result = Algorithms.trace(skel, [sRow - 1, sCol + 1], endP, pts, ctr + 1, index);
+                   result = Algorithms.trace(skel, [sRow - 1, sCol + 1], endP, pts, ctr + 1, index, threshold);
                    return;
                end
                if (skel(sRow + 0, sCol + 1) ~= 0)
-                   result = Algorithms.trace(skel, [sRow + 0, sCol + 1], endP, pts, ctr + 1, index);
+                   result = Algorithms.trace(skel, [sRow + 0, sCol + 1], endP, pts, ctr + 1, index, threshold);
                    return;
                end
                if (skel(sRow + 1, sCol + 1) ~= 0)
-                   result = Algorithms.trace(skel, [sRow + 1, sCol + 1], endP, pts, ctr + 1, index);
+                   result = Algorithms.trace(skel, [sRow + 1, sCol + 1], endP, pts, ctr + 1, index, threshold);
                    return;
                end
                if (skel(sRow - 1, sCol + 0) ~= 0)
-                   result = Algorithms.trace(skel, [sRow - 1, sCol + 0], endP, pts, ctr + 1, index);
+                   result = Algorithms.trace(skel, [sRow - 1, sCol + 0], endP, pts, ctr + 1, index, threshold);
                    return;
                end
                if (skel(sRow + 1, sCol + 0) ~= 0)
-                   result = Algorithms.trace(skel, [sRow + 1, sCol + 0], endP, pts, ctr + 1, index);
+                   result = Algorithms.trace(skel, [sRow + 1, sCol + 0], endP, pts, ctr + 1, index, threshold);
                    return;
                end
                if (skel(sRow - 1, sCol - 1) ~= 0)
-                   result = Algorithms.trace(skel, [sRow - 1, sCol - 1], endP, pts, ctr + 1, index);
+                   result = Algorithms.trace(skel, [sRow - 1, sCol - 1], endP, pts, ctr + 1, index, threshold);
                    return;
                end
                if (skel(sRow + 0, sCol - 1) ~= 0)
-                   result = Algorithms.trace(skel, [sRow + 0, sCol - 1], endP, pts, ctr + 1, index);
+                   result = Algorithms.trace(skel, [sRow + 0, sCol - 1], endP, pts, ctr + 1, index, threshold);
                    return;
                end
                if (skel(sRow + 1, sCol - 1) ~= 0)
-                   result = Algorithms.trace(skel, [sRow + 1, sCol - 1], endP, pts, ctr + 1, index);
+                   result = Algorithms.trace(skel, [sRow + 1, sCol - 1], endP, pts, ctr + 1, index, threshold);
                    return;
                end
 

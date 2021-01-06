@@ -111,7 +111,7 @@ classdef main
                 % biggest curvatures) 
                 if deviationsText(i,1) > max(deviationsBlobs(:,1))
                 
-                    imgFF = Algorithms.traceLine(curve, [row1, col1], [row2, col2]);
+                    imgFF = Algorithms.traceLine(curve, [row1, col1], [row2, col2], "default");
 
                     if (size(imgFF, 1) > 0)
                         for j = 1 : size(imgFF, 1)
@@ -191,7 +191,7 @@ classdef main
             
             end
             
-            part3TEnd = main.trackTime(part2TEnd, 3);
+            main.trackTime(part2TEnd, 3);
             
             % create output
             img = zeros(size(imageText));
