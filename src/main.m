@@ -5,42 +5,53 @@ classdef main
     %
     % Functions:
     % > mainFunc(imageObj, imageText)
-    % > Author: 
+    % > Author: Multiple
     % Main entry point of this program, runs all needed functions and
     % calculations and saves the output image in ../output.
     %
-    % >
+    % Disclaimer: UNCOMMENT line 101 and COMMENT line 102 if you want to
+    %             use Matlab's skeletonization which might work better 
+    %             with certain images
+    %
+    % > trackTime(oldTimestamp, part)
+    % > Author: Michael Eickmeyer
+    % Calculates the difference between 2 timestamps and displays it
+    % (amongst other information like the current time) in the console.
+    % Furthermore, tracks how long the program takes to generate an output
+    % image.
     
     methods(Static)
+        %% MAIN FUNCTION
         
+        % > Parameters:
+        % imageObj - an image containing segmentable objects
+        % imageText - an image containing text
         function mainFunc(imageObj, imageText)
             addpath('./helpers');
             addpath('../assets');
             
             appTStart = main.trackTime(NaN, "start");
-%% PART 1: OBJECT IMAGE
+            %% PART 1: OBJECT IMAGE
 
-      % PRE-PROCESSING (increase contrast, filter with gauß)
+            % PRE-PROCESSING (increase contrast, filter with gauß)
             imageAdjusted = imadjust(imageObj, [0.3 0.7], []);
 
             imageWithGauss = Filter.gaussFilter(imageAdjusted, 1, 3);
-            figure;
-            imshow(imageWithGauss);
             
-      % CREATE BINARY IMAGE
+            % CREATE BINARY IMAGE
             mask = Filter.imageToBinary(imageWithGauss, 0.85);
             %figure;
             %imshow(mask);
            
-      % SEGMENT IMAGE (Region Growing) & LABEL IMAGE
+            % SEGMENT IMAGE (Region Growing) & LABEL IMAGE
             [labeledImage, numOfLabels] = bwlabel(mask);
             %[labeledImage, numOfLabels] = Filter.regionLabeling(imageWithGauss, 0.85);
-            figure;
-            imshow(labeledImage)
+            %figure;
+            %imshow(labeledImage);
             
-      % EXTRACT BLOBS & THEIR PROPERTIES FROM LABELED IMAGE
-      % (save each blob (=segmented object) separately in cell array)
-      % (find out curvature properties of blobs)
+            % EXTRACT BLOBS & THEIR PROPERTIES FROM LABELED IMAGE
+            % (save each blob (=segmented object) separately in cell array)
+            % (find out curvature properties of blobs)
             
             % array for saving curvature properties
             % distance value, deviationRow and deviationColumn
@@ -79,16 +90,15 @@ classdef main
                 deviationsBlobs(i,:) = Algorithms.curvature(skelblob, endpointsBlobs(i,:));
                 
             end
-%%            
+
             part1TEnd = main.trackTime(appTStart, 1);
-%% PART 2: TEXT IMAGE 
+            %% PART 2: TEXT IMAGE
           
-    % CREATE BINARY IMAGE
+            % CREATE BINARY IMAGE
             binaryText = Filter.imageToBinary(imageText, 0.85);
-            %imshow(binaryText);
             
-    % CREATE SKELETON & REMOVE BRANCHPOINTS
-            %skel = bwskel(binaryText, 'MinBranchLength', 40); % removes short sidebranches
+            % CREATE SKELETON & REMOVE BRANCHPOINTS
+            %skel = bwskel(binaryText, 'MinBranchLength', 40);
             skel = Skeletonization.skeleton(binaryText);
             
             % remove branchpoints
@@ -105,19 +115,13 @@ classdef main
             end
             
             bp = imdilate(branchPoints, strel('cube', 9));
-            %figure;
-            %imshow(bp);
             skel(bp == 1) = 0;
-
-            %figure;
-            %imshow(skel);
             
-    % SEGMENT IMAGE (Region Growing) & LABEL IMAGE
+            % SEGMENT IMAGE (Region Growing) & LABEL IMAGE
             [labeledTextSkel, numOfTextLabels] = bwlabel(skel);
             %[labeledTextSkel, numOfTextLabels] = Filter.regionLabeling(skel);
             
-            % arrays for saving curvature properties and endpoints of
-            % skeleton
+            % arrays for saving curvature properties and endpoints of skeleton
             deviationsText = zeros(numOfTextLabels,5); 
             endpointsCurves = zeros(numOfTextLabels,4);
             
@@ -157,13 +161,12 @@ classdef main
                     end 
                 end
             end
-           
-%% 
+
             part2TEnd = main.trackTime(part1TEnd, 2);
-%% PART 3: MATCH OBJECT-BLOBS & TEXT-BLOBS 
-   % FIRST: REPEAT PREVIOUS LOOP 
-   % because there might be more curves in the text-skeleton now, in case
-   % some were split up
+            %% PART 3: MATCH OBJECT-BLOBS & TEXT-BLOBS 
+            % FIRST: REPEAT PREVIOUS LOOP 
+            % because there might be more curves in the text-skeleton now, 
+            % in case some were split up
    
             [labeledTextSkel, numOfTextLabels] = bwlabel(skel);
             
@@ -185,7 +188,7 @@ classdef main
                 % compute curvature properties 
                 deviationsText(l,:) = Algorithms.curvature(curve, endpointsCurves(l,:));
 
-   % FIND OBJECT-BLOB THAT IS THE BEST MATCH FOR TEXT-BLOB(CURVE)
+                % FIND OBJECT-BLOB THAT IS THE BEST MATCH FOR TEXT-BLOB(CURVE)
    
                 % compare curvature properties
                 % find the blob with minimal difference of curvature value
@@ -202,10 +205,10 @@ classdef main
                     end
                 end
 
-    % TRANSFORM BLOB ACCORDING TO LOCATION OF TEXT-CURVE
+                % TRANSFORM BLOB ACCORDING TO LOCATION OF TEXT-CURVE
     
                 % find transformation factors [angle, scalingFactor]
-                factors = Transform.transformFactors(closestBlob, endpointsBlobs(index,:), endpointsCurves(l,:), deviationsBlobs(index,:), deviationsText(l,:));
+                factors = Transform.transformFactors(endpointsBlobs(index,:), endpointsCurves(l,:), deviationsBlobs(index,:), deviationsText(l,:));
 
                 % rotate & scale
                 rotatedBlob = Transform.rotate(closestBlob, factors(1));
@@ -215,10 +218,9 @@ classdef main
                 usedBlobs{l} = scaledBlob;
             
             end
-%%           
+         
             main.trackTime(part2TEnd, 3); % end part 3 
-
-%% CREATE OUTPUT            
+            %% CREATE OUTPUT            
             
             img = zeros(size(imageText));
             for i = 1 : numOfTextLabels
@@ -270,7 +272,7 @@ classdef main
              
             end
             
-    % DISPLAY INPUT IMAGES
+            % DISPLAY INPUT IMAGES
             figure;
             subplot(2, 2, 1);
             imshow(imageObj);
@@ -278,12 +280,12 @@ classdef main
             subplot(2, 2, 2);
             imshow(imageText);
             
-    % DISPLAY FINAL IMAGE
+            % DISPLAY FINAL IMAGE
             subplot(2, 2, 3);
             finalImage = uint8(img);
             imshow(finalImage);
             
-    % DISPLAY OVERLAY IMAGE (FINAL & ORIGINAL TEXT)
+            % DISPLAY OVERLAY IMAGE (FINAL & ORIGINAL TEXT)
             subplot(2, 2, 4);
             finalImageText = imageText;
             tempImage = rgb2gray(img);
@@ -297,15 +299,21 @@ classdef main
             end
             imshow(finalImageText);
             
-    % SAVE OUTPUT AS FILE
+            % SAVE OUTPUT AS FILE
             imwrite(finalImage, '../output/result.jpg');
             imwrite(finalImageText, '../output/resultwithtext.jpg');
-%%
+
             main.trackTime(appTStart, "end");
         end
         
-%% TIMING FUNCTION
-
+        %% TIMING FUNCTION
+        
+        % > Parameters
+        % oldTimestamp - a (preferably) old timestamp for calculating the time a certain process took to complete
+        % part - a name or number of whichever part got completed, type "start" or "end" to get a special start or end message
+        %
+        % > Returns
+        % a timestamp which can be used for further calculations
         function timestamp = trackTime(oldTimestamp, part)
             timestamp = datestr(now, 'HH:MM:SS');
             
