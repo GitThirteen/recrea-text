@@ -104,7 +104,6 @@ classdef Filter
             else
                 output = Filter.gaussian(img, kernel, radius, n, m);
             end
-            
         end
         
         % > Parameters:

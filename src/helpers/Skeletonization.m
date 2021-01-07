@@ -97,7 +97,6 @@ classdef Skeletonization
 %                                 end
                             end
                         end
-                        
                     end
                     
                     %inputImage(mark>0) = 0;
@@ -117,8 +116,8 @@ classdef Skeletonization
                 
             end
             %inputImage = bwmorph(inputImage,'bridge');
-            figure;
-            imshow(inputImage)
+            %figure;
+            %imshow(inputImage)
             result = inputImage;
         end
     end

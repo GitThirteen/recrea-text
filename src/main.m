@@ -273,20 +273,21 @@ classdef main
             end
             
             % DISPLAY INPUT IMAGES
-            figure;
-            subplot(2, 2, 1);
+            figure('Name', 'Input Images');
+            subplot(1, 2, 1);
             imshow(imageObj);
             
-            subplot(2, 2, 2);
+            subplot(1, 2, 2);
             imshow(imageText);
             
             % DISPLAY FINAL IMAGE
-            subplot(2, 2, 3);
+            figure('Name', 'Output Images');
+            subplot(1, 2, 1);
             finalImage = uint8(img);
             imshow(finalImage);
             
             % DISPLAY OVERLAY IMAGE (FINAL & ORIGINAL TEXT)
-            subplot(2, 2, 4);
+            subplot(1, 2, 2);
             finalImageText = imageText;
             tempImage = rgb2gray(img);
             
