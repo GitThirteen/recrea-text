@@ -1,11 +1,11 @@
 %Author: Alexander Schallhart(11809596)
 classdef Skeletonization
     %SKELETONIZATION (skeletonization of a binary image)
-    % implementation of a iterative thinning algorithm
+    % implementation of an iterative thinning algorithm
     %
     % Functions:
     % > skeleton(inputImage)
-    % Author: Alexander Schallhart
+    % > Author: Alexander Schallhart
     % DESCRIPTION GOES HERE
     
     methods(Static)
