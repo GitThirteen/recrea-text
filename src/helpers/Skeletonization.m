@@ -96,7 +96,6 @@ classdef Skeletonization
 %                                 end
                             end
                         end
-                        
                     end
                     
                     %inputImage(mark>0) = 0;
