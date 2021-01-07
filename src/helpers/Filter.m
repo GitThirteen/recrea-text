@@ -223,8 +223,8 @@ classdef Filter
         % performed
         % structuringElement - the shape used to enlarge the appearance 
         %of white pixels 
-        % > Returns: the dilated binaryImage
-        % 
+        % > Returns: 
+        % the dilated binaryImage 
         function dilatedImage = dilate(binaryImage, structuringElement)  
             
             [row1, col1] = size(structuringElement);
