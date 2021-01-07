@@ -1,6 +1,15 @@
 classdef main
-    % main function of RecreaText program
+    % MAIN
+    % Main part of the RecreaText program
     % to start, run RecreaText.mlapp
+    %
+    % Functions:
+    % > mainFunc(imageObj, imageText)
+    % > Author: 
+    % Main entry point of this program, runs all needed functions and
+    % calculations and saves the output image in ../output.
+    %
+    % >
     
     methods(Static)
         
@@ -13,9 +22,7 @@ classdef main
 
       % PRE-PROCESSING (increase contrast, filter with gauß)
             imageAdjusted = imadjust(imageObj, [0.3 0.7], []);
-            %figure;
-            %imshow(imageAdjusted)
-            
+
             imageWithGauss = Filter.gaussFilter(imageAdjusted, 1, 3);
             figure;
             imshow(imageWithGauss);
@@ -276,11 +283,11 @@ classdef main
             finalImage = uint8(img);
             imshow(finalImage);
             
+    % DISPLAY OVERLAY IMAGE (FINAL & ORIGINAL TEXT)
             subplot(2, 2, 4);
             finalImageText = imageText;
             tempImage = rgb2gray(img);
             
-    % DISPLAY OVERLAY IMAGE (FINAL & ORIGINAL TEXT)
             for x = 1 : size(finalImageText, 1)
                 for y = 1 : size(finalImageText, 2)
                     if (tempImage(x, y) ~= 0)

@@ -5,11 +5,13 @@ classdef Algorithms
     %
     % Functions:
     % > traceLine(skel, startP, endP, mode)
+    % > Author: Michael Eickmeyer
     % A jumper function for trace(). Inputs different default values based
     % on the <mode> parameter. Alternatively, trace() can be called
     % directly to specify further details.
     %
     % > trace(skel, startP, endP, pts, ctr, index, threshold)
+    % > Author: Michael Eickmeyer
     % A modified flood-fill algorithm used for tracing the line of a 
     % specified skeleton. Starts at <startP> and checks every direction 
     % (8-connectivity) if it contains a 1. If that's the case, it
@@ -21,10 +23,12 @@ classdef Algorithms
     % find curvature properties of a skeleton
     %
     % > findBranchpoints(skel)
+    % > Author: Michael Eickmeyer
     % Determines all branchpoints in a binary image (skeleton) by looping
     % through the entire image provided through the <skel> parameter.
     % 
     % > isBranchpoint(skel, row, col)
+    % > Author: Michael Eickmeyer
     % Helper function for findBranchpoints(). Runs through all pixels
     % around a pixel specified by the <row> and <col> coordinate
     % parameters and adds a 1 to an array if a pixel is 1. If the sum of
