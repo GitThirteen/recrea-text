@@ -42,7 +42,8 @@ classdef Filter
     %
     % > dilate(binaryImage, structuringElement)
     % > Author: Martina Karajica
-    % DESCRIPTION GOES HERE
+    % Dilates a binary image with a given structuring element (kernel), 
+    %returns the dilated image
     %
     
     methods(Static)
@@ -219,33 +220,37 @@ classdef Filter
         %% MORPHOLOGICAL OPERATIONS
         
         % > Parameters:
-        % binaryImage -
-        % structuringElement -
-        %
-        % > Returns:
+        % binaryImage - the binary image on which dilation wants to be
+        % performed
+        % structuringElement - the shape used to enlarge the appearance 
+        %of white pixels 
+        % > Returns: the dilated binaryImage
         % 
         function dilatedImage = dilate(binaryImage, structuringElement)  
-            se = structuringElement;
-            [p, q] = size(se);
-            [m, n] = size(binaryImage);
-            dil = zeros(m,n); 
             
-            for i = 1:m
-                for j = 1:n
-                    if(binaryImage(i,j) == 1)
-                        for k = 1:p
-                            for l = 1:q
-                                if(se(k,l) == 1)
-                                    c = i+k;
-                                    d = j+l;
-                                    dil(c,d) = 1;
+            [row1, col1] = size(structuringElement);
+            [row2, col2] = size(binaryImage);
+            dil = zeros(row2,col2); 
+            data = imread(binaryImage);
+            
+            %iterates through binary image matrix and compares to
+            %structuring element, fills new values in new matrix 'dil'
+            
+            for i = 1:row2
+                for j = 1:col2
+                    if data(i,j) == 1
+                        for k = 1:row1
+                            for l = 1:col1
+                                if structuringElement(k,l) == 1
+                                    x = i+k;
+                                    y = j+l;
+                                    dil(x,y) = 1;
                                 end
                             end
                         end
                     end
                 end
             end
-            
             dilatedImage = dil;
         end    
     end
