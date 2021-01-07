@@ -12,11 +12,14 @@ classdef Filter
     %
     % > gaussFilter(img, sigma, radius)
     % > Author: Constantin Hammer, Michael Eickmeyer
-    % DESCRIPTION GOES HERE
+    % Jumper function that calls gaussian() depending on whether its an RGB
+    % or a greyscaled image. Generates the gaussian kernel as well.
     %
     % > gaussian(img, kernel, radius, n, m)
     % > Author: Constantin Hammer, Michael Eickmeyer
-    % DESCRIPTION GOES HERE
+    % Loops through an image dimension (in case it's an RGB image 3
+    % dimensions) and applies the gaussian kernel calculated in
+    % gaussFilter().
     %
     % > regionGrowing(image, x, y, threshold)
     % > Author: Constantin Hammer

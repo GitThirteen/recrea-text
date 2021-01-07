@@ -56,25 +56,32 @@ classdef Transform
                positionBlob = sign((vecBlob(1) * vecPointBlob(2) - vecPointBlob(1)*vecBlob(2)));
                positionText =  sign((vecText(1) * vecPointText(2) - vecPointText(1)*vecText(2)));
                
+               % vector between endpoints of text curve
                vectorT = endpText1 - endpText2;
-               % check if they are located on the same side relative to the
+               % check if curves are located on the same side relative to the
                % according line
-               % if not, change orientation of one 
+               % if not, change orientation of one of them
                if positionBlob ~= positionText
                    vectorB = endpBlob2 - endpBlob1;
                else
                    vectorB = endpBlob1 - endpBlob2;
                end
 
-              %angle between vectors of curve&blob (vectors of the verbindungsgeraden) 
+              % angle between vectors of text & object 
+              % orientation: from object to text 
               angle = atan2(vectorT(2), vectorT(1)) - atan2(vectorB(2), vectorB(1));
               
           %2nd: find scaling factor
               % proportion of the distances of the endpoints
-              normBlob = norm(endpBlob1-endpBlob2);
-              normText = norm(endpText1-endpText2);
-
-              scalingFactor = normText/normBlob;
+              normBlob = norm(vectorB);
+              normText = norm(vectorT);
+              
+              % avoid division by 0
+              if normBlob == 0
+                  scalingFactor = normText;
+              else
+                  scalingFactor = normText/normBlob;
+              end
                 
           % return 1x2 vector with angle & scaling factor
           factors = [angle, scalingFactor];
