@@ -6,13 +6,14 @@ classdef Skeletonization
     % Functions:
     % > skeleton(inputImage)
     % > Author: Alexander Schallhart
-    % DESCRIPTION GOES HERE
+    % uses the Zhang Suen thinning algorithm to skeletonize a black/white
+    % image for further processing
     
     methods(Static)
         % > Parameters:
-        % inputImage - 
+        % inputImage - black/white image
         %
-        % > Returns:
+        % > Returns: skeletonized black/white image
         % 
         function result = skeleton(inputImage)
             %SKELETONIZATION Construct an instance of this class
