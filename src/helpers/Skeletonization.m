@@ -1,3 +1,4 @@
+%Author: Alexander Schallhart(11809596)
 classdef Skeletonization
     %SKELETONIZATION skeletonization of a binary image
     %   implementation of a iterative thinning algorithm
@@ -5,7 +6,7 @@ classdef Skeletonization
     methods(Static)
         function result = skeleton(inputImage)
             %SKELETONIZATION Construct an instance of this class
-            %   Detailed explanation goes here
+            %   the inputImage has to be a BW image
             
             %%Skeletonize Code
             [Y, X] = size(inputImage);
@@ -21,7 +22,10 @@ classdef Skeletonization
                     for y = 2:1:Y-1
                         %if the pixel is not black
                         if(inputImage(y,x) > 0)
+                            
+                            %mark = zeros(Y, X);
                             %pos 2 to 9 are the surrounding pixels of pos 1
+                            %this exists so its easier to implement the algorithm
                             pos(1) = inputImage(y,   x);
                             pos(2) = inputImage(y-1, x);
                             pos(3) = inputImage(y-1, x+1);
@@ -37,7 +41,7 @@ classdef Skeletonization
                             change = pos(9);
                             
                             for n = 2:1:9
-                                %N() number of non zero neighbors
+                                %N() number of non zero neighbors (white)
                                 nonZeroNeighbor = sum(pos(2:end));
                                 
                                 %S() number of transitions from 0 to 1
@@ -53,6 +57,7 @@ classdef Skeletonization
                                     mark(y,x) = 1;
                                     changed = 1;
                                
+                                %diagonal checks
                                 elseif(pos(2)==1 && (pos(9)==1 || pos(3) == 1) && changed ~= 1 && 3 == nonZeroNeighbor)
                                     mark(y,x) = 1;
                                     changed = 1;
@@ -81,11 +86,11 @@ classdef Skeletonization
 %                                 end
                             end
                         end
+                        
                     end
+                    
+                    %inputImage(mark>0) = 0;
                 end
-                
-
-                
                 inputImage(mark>0) = 0;
                 
                 if sum(mark(:)) > 0
@@ -107,6 +112,3 @@ classdef Skeletonization
         end
     end
 end
-
-
-
