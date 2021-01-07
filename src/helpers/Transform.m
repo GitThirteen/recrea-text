@@ -1,22 +1,37 @@
 classdef Transform
     
-    % functions for transforming image
-    % transformFactors: finding angle for rotation and scaling factor for
-    %                   scale, based comparing values of 2 images
-    % rotate: performs counterclockwise rotation of an image
-    % scale: performs scaling of an image
+    % TRANSFORM
+    % A class containing functions for geometric transformations used in
+    % Part 3 of the main file.
     %
-    % author: Silke
+    % Functions:
+    % > transformFactors(endpBlob, endpText, devBlob, devText)
+    % Determines the angle for rotation and the scaling factor based on the
+    % properties of the image to be transformed (<endpBlob>, <devBlob>) 
+    % and the destination properties (<endpText>, <devText>)
+    % Returns 1 x 2 array containing the rotation angle and the scaling factor
+    %
+    % > rotate(blob, angle)
+    % Performs counterclockwise rotation of <blob> with the given <angle>
+    % around the center. Therefore includes a translation to the center of
+    % the image.
+    % Uses "backwards transformation" and Nearest-Neighbor-Interpolation.
+    % (for each pixel in the resulting rotated image interpolate the original image) 
+    % Returns rotated image 
+    %
+    % > scale(blob, factor)
+    % Performs scaling of <blob> by the given <factor>.
+    % Uses "backwards transformation" and Nearest-Neighbor-Interpolation.
+
     
     methods(Static)     
 %% transformFactors
 
-      % blob = the (segmented) object to be transformed
       % endpBlob = array of endpoints of the Blob (of the form [r1,c1,r2,c2])
       % endpText = array of endpoints of the Text-curve (of the form [r1,c1,r2,c2])
-      % devBlob = array of the blob describing deviation properties from straight line 
-      % devText = array of the text curve describing deviation properties from straight line 
-        function factors = transformFactors(blob, endpBlob, endpText, devBlob, devText)
+      % devBlob = array of the blob describing deviation from straight line properties
+      % devText = array of the text curve describing deviation from straight line properties
+        function factors = transformFactors(endpBlob, endpText, devBlob, devText)
         % 1st: find angle for rotation
                %endpoints of curves
                endpBlob1 = endpBlob(1:2);
@@ -67,11 +82,9 @@ classdef Transform
         end
         
 %% rotate
-          % blob = the segmented object (blob) to be rotated
+          % blob = the image (in our case: segmented object (blob)) to be rotated
           % angle = the angle (in radians), which the blob should be 
           %         rotated counterclockwise
-          % idea: for each pixel in the resulting rotated image interpolate 
-          % the original image with nearest neighbor interpolation
            function imRotated = rotate(blob, angle)
               
                % transpose rotation matrix, because performing the rotation
