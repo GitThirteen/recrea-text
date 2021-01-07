@@ -116,25 +116,6 @@ classdef Algorithms
                 
                 dev = [relDist, devRow, devCol, rMiddle, cMiddle];
                 
-                %(other version):
-                   %numPixelsInBlob = sum(sum(skelblob==1));
-                
-                %middlePix = skelblob ;
-                %middlePix(endpoints(1:2)) = 0;
-                %middlePix(endpoints(3:4)) = 0;
-                %countPix = 0 ;
-                
-                % entferne wiederholt die endpunkte des skeletons, damit
-                % nur mehr mittleres Pixel übrig bleibt
-%                 while countPix < numPixelsInBlob/2-2
-%                     endpix = bwmorph(middlePix, 'endpoints');
-%                     endpix1 = find(endpix, 1, 'first');
-%                     endpix2 = find(endpix, 1, 'last');
-%                     middlePix(endpix1) = 0;
-%                     middlePix(endpix2) = 0;
-%                     countPix = countPix +1;
-%                 end
-                
                 return;
            end
            

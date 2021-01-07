@@ -228,20 +228,37 @@ classdef main
 
                 numRowsBlob = size(blobOut,1);
                 firsthalfRows = uint16(round(numRowsBlob/2));
-                secondhalfRows = uint16(numRowsBlob - firsthalfRows);
                 numColsBlob = size(blobOut,2);
                 firsthalfCols = uint16(round(numColsBlob/2));
-                secondhalfCols = uint16(numColsBlob - firsthalfCols);
                 
-                inposition(centroid(2)-firsthalfRows : centroid(2)+secondhalfRows-1, centroid(1)-firsthalfCols : centroid(1)+secondhalfCols-1, :) = blobOut;
+                beginRow = centroid(2)-firsthalfRows;
+                endRow = beginRow + numRowsBlob-1;
+                beginCol = centroid(1)-firsthalfCols;
+                endCol = beginCol + numColsBlob-1;
+                
+                a = 1;
+                b = 1;
+                
+                % case: blob indices outside the image boundaries on the 
+                % top or left
+                if beginRow <1
+                    a = a + abs(beginRow)+1;
+                    beginRow = 1;
+                end
+                if beginCol <1
+                    b = b + abs(beginCol)+1;
+                    beginCol = 1;
+                end
+                
+                inposition( beginRow : endRow, beginCol : endCol, :) = blobOut(a:end,b:end,:);
                
-                 % add temporary image to output image
+                % add temporary image to output image
                 % (background pixels with value 0 don't affect already
                 % existing nonzero pixels -> no overlap of
                 % blob-backgrounds)
-                % in case part of the positioned blob-image lies outside
-                % the image size, inposition is cropped to the original
-                % size before adding
+                % case: part of the positioned blob-image lies outside
+                % the image size on the right or bottom, 
+                % inposition is cropped to the original size before adding
                 img = img + inposition(1:size(img,1), 1:size(img,2),:);
              
             end
