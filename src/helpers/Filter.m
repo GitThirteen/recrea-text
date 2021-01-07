@@ -12,31 +12,27 @@ classdef Filter
     %
     % > gaussFilter(img, sigma, radius)
     % > Author: Constantin Hammer, Michael Eickmeyer
-    % Smooths an RGB image through appliance of gaussian to each color
-    % dimension.
+    % DESCRIPTION GOES HERE
     %
     % > gaussian(img, kernel, radius, n, m)
     % > Author: Constantin Hammer, Michael Eickmeyer
-    % Smooths a 2D-array through a convolution with a set kernel and radius.
+    % DESCRIPTION GOES HERE
     %
     % > regionGrowing(image, x, y, threshold)
     % > Author: Constantin Hammer
-    % Selects a region in an RGB image originating from a set seed point.
+    % DESCRIPTION GOES HERE
     %
     % > regionGrowingFromGrayscale(grayscaleImage, x, y, threshold)
     % > Author: Constantin Hammer
-    % Selects a region in a greyscale image originating from a set seed
-    % point.
+    % DESCRIPTION GOES HERE
     %
     % > regionLabeling(image, treshold)
     % > Author: Constantin Hammer
-    % Selects multiple regions from an RGB image using iterative Region
-    % Growing.
+    % DESCRIPTION GOES HERE
     %
     % > regionLabelingFromBinary(binaryImage)
     % > Author: Constantin Hammer
-    % Selects multiple regions from a greyscale image using iterative
-    % Region Growing.
+    % DESCRIPTION GOES HERE
     %
     % > dilate(binaryImage, structuringElement)
     % > Author: Martina Karajica
@@ -132,26 +128,26 @@ classdef Filter
         %% REGION GROWING + LABELING
         
         % > Parameters:
-        % image - the RGB image to find regions in
-        % x - the x position of the seed
-        % y - the y position of the seed
-        % threshold - the treshold defining the boundaries of the region
+        % image -
+        % x - 
+        % y -
+        % threshold - 
         % 
         % > Returns:
-        % a binary mask with the found region
+        % 
         function regionMask = regionGrowing(image, x, y, threshold)
             grayscaleImage = rgb2gray(image);
             regionMask = Filter.regionGrowingFromGrayscale(grayscaleImage, x, y, threshold);
         end
         
         % > Parameters:
-        % grayscaleImage - the greyscale image to find regions in
-        % x - the x position of the seed
-        % y - the y position of the seed
-        % threshold - the treshold defining the boundaries of the region
+        % grayscaleImage -
+        % x - 
+        % y -
+        % threshold - 
         % 
         % > Returns:
-        % a binary mask with the found region
+        % 
         function regionMask = regionGrowingFromGrayscale(grayscaleImage, x, y, threshold)
             % Prime the region mask.
             regionMask = false(size(grayscaleImage, 1), size(grayscaleImage, 2));
@@ -174,23 +170,21 @@ classdef Filter
         end
         
         % > Parameters:
-        % image - the RGB image to find regions in
-        % threshold - the threshold for imbinarize
+        % image -
+        % threshold - 
         % 
         % > Returns:
-        % a mask with all the regions with unique integer values | the
-        % number of total regions found
+        % 
         function [regionMap, regionsNr] = regionLabeling(image, threshold)
             binaryImage = Filter.imageToBinary(image, threshold);
             [regionMap, regionsNr] = Filter.regionLabelingFromBinary(binaryImage);
         end
         
         % > Parameters:
-        % binaryImage - the binary image to find regions in
+        % binaryImage -
         % 
         % > Returns:
-        % a mask with all the regions with unique integer values | the
-        % number of total regions found
+        % 
         function [regionMap, regionsNr] = regionLabelingFromBinary(binaryImage)
             % Create a binary image the region map.
             regionMap = zeros(size(binaryImage));
