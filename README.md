@@ -15,4 +15,6 @@ For example images see the assets folder.
 2. You will see a GUI
 3. Click "Objekte auswaehlen" to load an image showing the objects that should recreate the Text. You can use the images in the assets folder. 
 3. Click "Text auswaehlen" to load an image showing the Text you want to recreate. You can use the images in the assets folder. 
-4. Click "GO" to run the program 
+4. Click "GO" to run the program
+
+(Important: The image has to be in the /assets folder in order to work)
