@@ -19,8 +19,17 @@ classdef Algorithms
     % Returns an N x 2 matrix containing the coordinates with the
     % interval/steps of the <threshold> parameter.
     %
-    % > curvature(skelblob, endpoints)
-    % find curvature properties of a skeleton
+    % > curvature(skel, endpoints)
+    % > Author: Silke Buchberger
+    % Determines a value describing the curvature of the given skeleton <skel>. It uses
+    % traceLine() to find the middle of the skeleton and computes the
+    % distance from the middle of the skeleton to the middle of the
+    % straight line connecting the skeleton's endpoints. The curvature
+    % value is the relation of these distances.
+    % Returns a 1 x 5 array containing the curvature value, the offset
+    % between the middle points and the middle point of the skeleton. The
+    % last 4 values of the returned array will be important for determining
+    % the rotation angle. (see Transform.m)
     %
     % > findBranchpoints(skel)
     % > Author: Michael Eickmeyer
@@ -144,33 +153,39 @@ classdef Algorithms
      
            %% Curvature
 
-           % skelblob = a continuous skeleton
-           % endpoints = its endpoints in the form [row1, col1, row2, col2]
-           function dev = curvature(skelblob, endpoints)
+           % > Parameters:      
+           % skel - a skeletonized blob/label
+           % endpoints - its endpoints in the form [row1, col1, row2,col2]
+           %            (with endpoint1 = [row1, col1] and endpoint2 = [row2,col2])
+           % 
+           % > Returns:
+           % an 1 x 5 array containing curvature value, row&column offset 
+           % of middle points and row&column position of <skel>'s middle point      
+           function dev = curvature(skel, endpoints)
 
                 startPt = endpoints(1:2);
                 endPt = endpoints(3:4);
-                middlePix = Algorithms.traceLine(skelblob,startPt, endPt,'centerpt');
+                middlePix = Algorithms.traceLine(skel,startPt, endPt,'centerpt');
 
                 rMiddle = middlePix(1);
                 cMiddle = middlePix(2);
-                %[rowsLastHalfPixels, colsLastHalfPixels] = find(skelblob, numPixelsInBlob/2 , 'last');
-                %[rMiddle, cMiddle] = find(middlePix==1);
                 
-                % berechnet Abstand der jeweiligen Pixel, die
-                % in der Mitte der Kurve bzw. Vergleichsgeraden liegen.
-                devCol = (endpoints(2) + endpoints(4))/2 - (cMiddle);
-                devRow = (endpoints(1) + endpoints(3))/2 - (rMiddle);
-          
-                % 1st entry = relative distance
-                % 2nd & 3rd entry = vector from middle of curve to middle
-                % of line
-                % 4th & 5th entry = middle point of curve
+                % computes row and column offsets between middle point
+                % of the skeleton and middle point of the straight line 
+                % connecting <startPt> and <endPt>
+                offCol = (endpoints(2) + endpoints(4))/2 - (cMiddle);
+                offRow = (endpoints(1) + endpoints(3))/2 - (rMiddle);
+               
+                % distance of endpoints
                 distEndp = norm(endpoints(1:2)-endpoints(3:4));
-                distToLine = norm([devRow, devCol]);
-                relDist = distToLine/distEndp;
                 
-                dev = [relDist, devRow, devCol, rMiddle, cMiddle];
+                % distance from middle of curve to middle of line
+                distToLine = norm([offRow, offCol]);
+                
+                % relation of distances
+                curvVal = distToLine/distEndp;
+                
+                dev = [curvVal, offRow, offCol, rMiddle, cMiddle];
                 
                 return;
            end
