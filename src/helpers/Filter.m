@@ -86,7 +86,7 @@ classdef Filter
             regionMask(x, y) = 1;
             
             % Iterate until the region stops growing.
-            while sum(sum(regionMask > 0)) ~= sum(sum(oldMask > 0))
+            while sum(sum(regionMask)) ~= sum(sum(oldMask))
                 oldMask = regionMask;
                 segValues = grayscaleImage(regionMask);
                 meanSegValue = mean(segValues);
@@ -110,14 +110,16 @@ classdef Filter
             % Iterate over binary image.
             for i = 1 : size(regionMap, 1)
                 for j = 1 : size(regionMap, 2)
-                    if binaryImage(i, j) == 1 && regionMap(i, j) == 0
-                        
+                    if (binaryImage(i, j) == 1 && regionMap(i, j) == 0)
                         % If a pixel is in the foreground, but not part of
                         % a region yet, then it becomes the origin of a new
                         % region.
-                        tempMask = Filter.regionGrowingFromGrayscale(double(binaryImage), i, j, 0.5);
                         regionsNr = regionsNr + 1
-                        regionMap = regionMap + (tempMask * regionsNr);
+                        tempMask = Filter.regionGrowingFromGrayscale(double(binaryImage), i, j, 0.5);
+                        tempMask = tempMask * regionsNr;
+                        regionMap = regionMap + tempMask;
+                        
+                        x=[regionMap(i, j-1),regionMap(i, j),regionMap(i, j+1)]
                     end
                 end
             end
