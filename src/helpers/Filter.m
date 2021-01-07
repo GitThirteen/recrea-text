@@ -1,13 +1,53 @@
 classdef Filter
-    
-    % imageToBinary: converting rgb image to binary image
-    % gaussFilter: smoothing image with gaussian filter
-    % regionLabeling: segmenting image with regionGrowing and labeling
-    %                   segments
-    % dilate: performing morphological dilation on image
+    % FILTER
+    % A class containing various filter implementations
+    %
+    % Functions:
+    % > imageToBinary(image, threshold)
+    % > Author: Silke Buchberger, Michael Eickmeyer
+    % Converts an rgb image to binary image with a set threshold. Also
+    % makes sure that there are more black pixels in the background than
+    % white pixels, since white (logical 1) is used in further functions as
+    % skeleton.
+    %
+    % > gaussFilter(img, sigma, radius)
+    % > Author: Constantin Hammer, Michael Eickmeyer
+    % DESCRIPTION GOES HERE
+    %
+    % > gaussian(img, kernel, radius, n, m)
+    % > Author: Constantin Hammer, Michael Eickmeyer
+    % DESCRIPTION GOES HERE
+    %
+    % > regionGrowing(image, x, y, threshold)
+    % > Author: Constantin Hammer
+    % DESCRIPTION GOES HERE
+    %
+    % > regionGrowingFromGrayscale(grayscaleImage, x, y, threshold)
+    % > Author: Constantin Hammer
+    % DESCRIPTION GOES HERE
+    %
+    % > regionLabeling(image, treshold)
+    % > Author: Constantin Hammer
+    % DESCRIPTION GOES HERE
+    %
+    % > regionLabelingFromBinary(binaryImage)
+    % > Author: Constantin Hammer
+    % DESCRIPTION GOES HERE
+    %
+    % > dilate(binaryImage, structuringElement)
+    % > Author: Martina Karajica
+    % DESCRIPTION GOES HERE
+    %
     
     methods(Static)
-        % Returns a black & white image depending on the set threshold
+        %% BINERIZATION
+        
+        % > Parameters:
+        % image - the image to be binarized
+        % threshold - the threshold for imbinarize
+        %
+        % > Returns:
+        % a black & white image (binarized image containing only 0's or 1's) depending on the set threshold
         function binaryImage = imageToBinary(image, threshold)
             grayImage = rgb2gray(image);
             
@@ -26,7 +66,15 @@ classdef Filter
             binaryImage = imclose(binaryImage, closeObj);
         end
         
-        % Gauss
+        %% GAUSS
+        
+        % > Parameters:
+        % img - the image on which the gaussian is going to be performed on, can be either rgb or greyscaled
+        % sigma - the standard deviation of the gaussian kernel
+        % radius - the radius (!) of the gaussian kernel
+        %
+        % > Returns:
+        % A matrix containing the values of the blurred image
         function output = gaussFilter(img, sigma, radius)
             % Generate the kernel.
             [x,y] = meshgrid(-radius:radius, -radius:radius);
@@ -52,6 +100,13 @@ classdef Filter
             
         end
         
+        % > Parameters:
+        % img - the image to be blurred
+        % kernel - the gaussian kernel
+        % radius - the radius of the kernel
+        %
+        % > Returns:
+        % A matrix containing the values of the blurred image
         function filteredImage = gaussian(img, kernel, radius, n, m)
             img = double(img);
             
@@ -70,12 +125,29 @@ classdef Filter
             filteredImage = uint8(retImage);
         end
         
-        %region growing
+        %% REGION GROWING + LABELING
+        
+        % > Parameters:
+        % image -
+        % x - 
+        % y -
+        % threshold - 
+        % 
+        % > Returns:
+        % 
         function regionMask = regionGrowing(image, x, y, threshold)
             grayscaleImage = rgb2gray(image);
             regionMask = Filter.regionGrowingFromGrayscale(grayscaleImage, x, y, threshold);
         end
         
+        % > Parameters:
+        % grayscaleImage -
+        % x - 
+        % y -
+        % threshold - 
+        % 
+        % > Returns:
+        % 
         function regionMask = regionGrowingFromGrayscale(grayscaleImage, x, y, threshold)
             % Prime the region mask.
             regionMask = false(size(grayscaleImage, 1), size(grayscaleImage, 2));
@@ -97,11 +169,22 @@ classdef Filter
             end
         end
         
-        function [regionMap, regionsNr] = regionLabeling(image, treshold)
-            binaryImage = Filter.imageToBinary(image, treshold);
+        % > Parameters:
+        % image -
+        % threshold - 
+        % 
+        % > Returns:
+        % 
+        function [regionMap, regionsNr] = regionLabeling(image, threshold)
+            binaryImage = Filter.imageToBinary(image, threshold);
             [regionMap, regionsNr] = Filter.regionLabelingFromBinary(binaryImage);
         end
         
+        % > Parameters:
+        % binaryImage -
+        % 
+        % > Returns:
+        % 
         function [regionMap, regionsNr] = regionLabelingFromBinary(binaryImage)
             % Create a binary image the region map.
             regionMap = zeros(size(binaryImage));
@@ -125,8 +208,15 @@ classdef Filter
             end
         end
         
-        function dilatedImage = dilate(binaryImage, structuringElement)
-            
+        %% MORPHOLOGICAL OPERATIONS
+        
+        % > Parameters:
+        % binaryImage -
+        % structuringElement -
+        %
+        % > Returns:
+        % 
+        function dilatedImage = dilate(binaryImage, structuringElement)  
             se = structuringElement;
             [p, q] = size(se);
             [m, n] = size(binaryImage);
@@ -136,22 +226,20 @@ classdef Filter
                 for j = 1:n
                     if(binaryImage(i,j) == 1)
                         for k = 1:p
-                for l = 1:q
-                    if(se(k,l) == 1)
-                        c = i+k;
-                        d = j+l;
-                        dil(c,d) = 1;
-                    end
-                end
+                            for l = 1:q
+                                if(se(k,l) == 1)
+                                    c = i+k;
+                                    d = j+l;
+                                    dil(c,d) = 1;
+                                end
+                            end
                         end
                     end
                 end
             end
             
-            dilatedImage = dil;    
-                
-        end
-            
+            dilatedImage = dil;
+        end    
     end
 end
 

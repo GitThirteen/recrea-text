@@ -1,6 +1,7 @@
 classdef Transform
     
     % TRANSFORM
+    % > Author: Silke Buchberger
     % A class containing functions for geometric transformations used in
     % Part 3 of the main file.
     %
